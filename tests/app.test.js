@@ -329,13 +329,27 @@ for (const layout of Object.keys(LAYOUTS)) {
     });
     test('Sparschwein animiert beim Abhaken, aber nicht erneut beim Tages- oder Wochenwechsel', async () => {
       const h = await start(layout);
+      /* je Profil eine Aufgabe abhaken (wie im Alltag), dann den Tag wechseln */
       await (await cell(h, 't1', 'pa', TODAY)).click();
       assert.equal(await h.page.locator('.pig.wobble').count(), 1, 'beim Abhaken wackelt das Schwein');
       assert.equal(await h.page.locator('.coin.drop').count(), 1, 'beim Abhaken fällt eine Münze');
-      if (layout === 'mobile') await h.page.locator('.dchip').nth(0).click(); else await h.page.locator('#nextw').click();
-      await h.page.waitForTimeout(100);
-      assert.equal(await h.page.locator('.pig.wobble').count(), 0, 'Wechsel darf die Animation nicht neu starten');
+      await (await cell(h, 't1', 'pb', TODAY)).click();
+      const change = async () => { if (layout === 'mobile') await h.page.locator('.dchip').nth(0).click(); else await h.page.locator('#nextw').click(); await h.page.waitForTimeout(100); };
+      await change();
+      assert.equal(await h.page.locator('.pig.wobble').count(), 0, 'Wechsel darf die Animation in keinem Profil neu starten');
       assert.equal(await h.page.locator('.coin.drop').count(), 0);
+      assert.equal(await h.page.evaluate(() => document.getAnimations().filter((a) => /wobble|drop/.test(a.animationName || '')).length), 0, 'keine laufende Sparschwein-Animation');
+    });
+    test('Animations-Klassen verschwinden von selbst, auch ohne Neuaufbau', async () => {
+      const h = await start(layout);
+      await (await cell(h, 't1', 'pa', TODAY)).click();
+      await h.page.waitForTimeout(1700);
+      assert.equal(await h.page.locator('.pig.wobble').count(), 0);
+      assert.equal(await h.page.locator('.coin.drop').count(), 0);
+    });
+    test('Versionsnummer ist sichtbar', async () => {
+      const h = await start(layout);
+      assert.match(await h.page.locator('.ver').first().innerText(), /^Version \d/);
     });
     test('nur Symbol, kein Aufgabenname im Raster', async () => {
       const h = await start(layout);

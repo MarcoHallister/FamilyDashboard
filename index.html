@@ -282,6 +282,7 @@ textarea.inp{font-size:16px}
 .minfo .ticon.emo,.minfo .ticon.ini{width:54px;height:54px}
 .minfo .ticon.emo{font-size:40px}
 .mcheck{width:100%;height:56px}
+.ver{color:var(--muted);font-size:12px;text-align:center;padding:10px 0 4px}
 </style>
 </head>
 <body>
@@ -316,6 +317,7 @@ textarea.inp{font-size:16px}
    Konstanten
    ===================================================================== */
 var STORE_KEY = 'haushaltsplaner.v2';
+var APP_VERSION = '1.4 (15.11.2026)';
 var UNLOCK_MS = 120000;           /* PIN-Entsperrung: 2 Minuten */
 var PIN_MAX_FAILS = 5;
 var PIN_BLOCK_MS = 30000;
@@ -992,6 +994,7 @@ function renderBoard() {
     pg.update(p);
     foot.appendChild(pg.root);
   });
+  extra.appendChild(h('div', { class: 'ver' }, 'Version ' + APP_VERSION));
   boardCtx = { profs: profs, dates: dates };
 }
 
@@ -1075,6 +1078,7 @@ function renderMobile(profs, dates) {
     h('button', { class: 'btn', onclick: openTaskList }, 'Alle Aufgaben'),
     h('button', { class: 'btn primary', onclick: function () { requirePin(function () { openTaskMask(null); }); } }, '+ Neue Aufgabe')
   ]));
+  extra.appendChild(h('div', { class: 'ver' }, 'Version ' + APP_VERSION));
   boardCtx = { profs: profs, dates: dates };
 }
 
@@ -1203,7 +1207,7 @@ function makePiggy(p) {
   var btn = h('button', { class: 'btn', onclick: function () { openPayout(profileById(p.id)); } }, 'Auszahlen');
   var root = h('div', { class: 'pf' }, [h('div', { class: 'pigwrap' }, [pigEl, coin]), h('div', { class: 'pinfo' }, [amount, btn])]);
   var fillRect = pigEl.querySelector('.fill');
-  var shown = null, raf = null;
+  var shown = null, raf = null, animTimer = null;
 
   function draw(c) {
     amount.textContent = fmtMoney(c);
@@ -1228,6 +1232,9 @@ function makePiggy(p) {
       coin.classList.remove('drop'); pigEl.classList.remove('wobble');
       void coin.offsetWidth;
       coin.classList.add('drop'); pigEl.classList.add('wobble');
+      /* Klassen nach Ablauf entfernen, damit nichts hängen bleibt und später neu startet */
+      clearTimeout(animTimer);
+      animTimer = setTimeout(function () { coin.classList.remove('drop'); pigEl.classList.remove('wobble'); }, 1400);
     }
     var delay = withCoin ? 450 : 0, dur = 650, t0 = null;
     function step(ts) {
