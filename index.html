@@ -413,7 +413,7 @@ textarea.inp{font-size:16px}
    Konstanten
    ===================================================================== */
 var STORE_KEY = 'haushaltsplaner.v2';
-var APP_VERSION = '1.6 (15.11.2026)';
+var APP_VERSION = '1.7 (15.11.2026)';
 var UNLOCK_MS = 120000;           /* PIN-Entsperrung: 2 Minuten */
 var PIN_MAX_FAILS = 5;
 var PIN_BLOCK_MS = 30000;
@@ -1013,7 +1013,8 @@ function renderBoard() {
   var aw = $('app').clientWidth;
   ui.mobile = aw < 700;
   var acls = ui.mobile ? 'mobile' : '';
-  if (cal.cfg.mode !== 'off') acls += (acls ? ' ' : '') + 'calon' + (aw >= 900 ? ' withpanel' : '');
+  cal.wasActive = calActive();
+  if (cal.wasActive) acls += (acls ? ' ' : '') + 'calon' + (aw >= 900 ? ' withpanel' : '');
   $('app').className = acls;
   renderCalPanel();
   $('daystrip').innerHTML = '';
@@ -1118,7 +1119,7 @@ function renderMobile(profs, dates) {
   var sel = curSelDay(dates);
   ui.selDay = sel;
   body.innerHTML = ''; extra.innerHTML = ''; strip.innerHTML = '';
-  if (cal.cfg.mode !== 'off') body.appendChild(calCard());
+  if (calActive()) body.appendChild(calCard());
 
   /* Tagesleiste mit Status je Tag */
   dates.forEach(function (d, di) {
@@ -2198,6 +2199,9 @@ var CAL_CACHE_KEY = 'haushaltsplaner.calcache';
 var HOUR_H = 48;                       /* Höhe einer Stunde in der Wochenansicht (muss zum CSS passen) */
 var cal = { cfg: { mode: 'off', url: '', token: '', view: 'month' }, ics: [], raws: [], fetchedAt: 0, error: '', cover: null, busy: false, views: [] };
 var calDraft = null;
+/* Das Kalenderfeld erscheint nur, wenn ein Kalender verbunden ist, also mindestens einmal erfolgreich geladen wurde
+   (auch Zwischenspeicher zählt). Ohne Verbindung bleibt es ganz verborgen. */
+function calActive() { return cal.cfg.mode !== 'off' && cal.fetchedAt > 0; }
 
 function calLoadCfg() {
   try {
@@ -2361,6 +2365,7 @@ function calCard() {
 }
 /* Wird nach neuen Daten und jede Minute aufgerufen: aktualisiert nur den Kalenderbereich. */
 function calChanged() {
+  if (calActive() !== cal.wasActive) { renderBoard(); cal.views.slice().forEach(function (fn) { fn(); }); return; }   /* Kalender erscheint oder verschwindet: Layout neu aufbauen */
   renderCalPanel();
   var c = document.querySelector('.calcard');
   if (c) calFillToday(c, 4);

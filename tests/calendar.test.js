@@ -65,7 +65,7 @@ afterEach(async () => {
 async function open(opts) {
   opts = opts || {};
   const ctx = await browser.newContext(Object.assign({}, opts.viewport ? { viewport: opts.viewport } : LAYOUTS[opts.layout || 'wide'], { timezoneId: 'Europe/Berlin', locale: 'de-DE' }));
-  const calls = [], state = { mode: opts.offline ? 'offline' : 'ok', ics: opts.ics || [FIXTURE], status: 500, error: 'Fehler' };
+  const calls = [], state = { mode: opts.mode || (opts.offline ? 'offline' : 'ok'), ics: opts.ics || [FIXTURE], status: opts.status || 500, error: opts.error || 'Fehler' };
   const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, OPTIONS' };
   await ctx.route('https://cal.test/**', async (route) => {
     const req = route.request();
@@ -263,6 +263,41 @@ for (const layout of Object.keys(LAYOUTS)) {
   });
 }
 
+for (const layout of Object.keys(LAYOUTS)) {
+  describe(`Kalenderfeld nur bei bestehender Verbindung [${layout}]`, () => {
+    const visible = (h) => layout === 'wide' ? h.page.locator('#calpanel').isVisible() : h.page.locator('.calcard').count().then((n) => n > 0);
+    test('eingetragen, aber nie verbunden (kein Netz): nichts davon sichtbar', async () => {
+      const h = await open({ layout, offline: true });
+      assert.ok(await h.page.evaluate(() => window.__hp.cal.state.error), 'Fehler ist bekannt');
+      assert.equal(await visible(h), false);
+      assert.equal(await h.page.locator('#calbtn').isVisible(), false);
+      assert.equal(await h.page.evaluate(() => /calon/.test(document.getElementById('app').className)), false);
+    });
+    test('Worker meldet Fehler (Zugangscode falsch) ohne vorherige Verbindung: verborgen', async () => {
+      const h = await open({ layout, mode: 'error', status: 401, error: 'Zugangscode falsch' });
+      assert.equal(await h.page.evaluate(() => window.__hp.cal.state.error), 'Zugangscode falsch');
+      assert.equal(await visible(h), false);
+    });
+    test('Kalender ohne Adresse: verborgen', async () => {
+      const h = await open({ layout, cfg: { mode: 'worker', url: '', token: '', view: 'month' }, wait: false });
+      await h.page.waitForTimeout(300);
+      assert.equal(await visible(h), false);
+    });
+    test('erscheint, sobald die Verbindung klappt, und verschwindet beim Ausschalten', async () => {
+      const h = await open({ layout, offline: true });
+      assert.equal(await visible(h), false);
+      h.state.mode = 'ok';
+      await h.page.evaluate(() => new Promise((r) => window.__hp.cal.refresh(r)));
+      assert.equal(await visible(h), true);
+      assert.equal(await h.page.locator(layout === 'wide' ? '#calpanel .cev' : '.calcard .cev').count(), 4);
+    });
+    test('mit gespeichertem Stand sichtbar, auch wenn das Netz fehlt', async () => {
+      const h = await open({ layout, cache: true, offline: true });
+      assert.equal(await visible(h), true);
+    });
+  });
+}
+
 describe('Platz je nach Bildschirmbreite', () => {
   test('breit: Liste steht rechts neben dem Raster, Raster bleibt nutzbar', async () => {
     const h = await open({ layout: 'wide' });
@@ -454,17 +489,18 @@ describe('Verbindung, Zwischenspeicher, Fehler', () => {
     assert.equal(await h.page.locator('#calpanel .cev').count(), 4);
     assert.match(await h.page.locator('#calpanel .calfoot').innerText(), /^Offline – Stand \d\d:\d\d/);
   });
-  test('Zwischenspeicher einer anderen Adresse wird nicht verwendet', async () => {
+  test('Zwischenspeicher einer anderen Adresse wird nicht verwendet: Kalenderfeld bleibt verborgen', async () => {
     const h = await open({ layout: 'wide', cache: true, offline: true, cfg: { mode: 'worker', url: 'https://cal.test/anders', token: 'x', view: 'month' } });
+    assert.equal(await h.page.locator('#calpanel').isVisible(), false);
     assert.equal(await h.page.locator('#calpanel .cev').count(), 0);
-    assert.match(await h.page.locator('#calpanel .calempty').innerText(), /Heute keine Termine/);
   });
-  test('Fehlermeldung des Workers wird angezeigt (Zugangscode falsch)', async () => {
-    const h = await open({ layout: 'wide', wait: false });
+  test('Fehlermeldung des Workers wird angezeigt (Zugangscode falsch), Termine bleiben', async () => {
+    const h = await open({ layout: 'wide' });
     h.state.mode = 'error'; h.state.status = 401; h.state.error = 'Zugangscode falsch';
     await h.page.evaluate(() => new Promise((r) => window.__hp.cal.refresh(r)));
     assert.equal(await h.page.evaluate(() => window.__hp.cal.state.error), 'Zugangscode falsch');
     assert.match(await h.page.locator('#calpanel .calfoot').getAttribute('title'), /Zugangscode falsch/);
+    assert.equal(await h.page.locator('#calpanel .cev').count(), 4);
   });
   test('Zugangsdaten stehen nicht im Backup der Aufgabendaten', async () => {
     const h = await open({ layout: 'wide' });
