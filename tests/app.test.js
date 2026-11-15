@@ -327,6 +327,16 @@ for (const layout of Object.keys(LAYOUTS)) {
       await (await cell(h, 't1', 'pa', TODAY)).click();
       await h.page.waitForFunction(() => document.querySelector('.amount') && /0,50/.test(document.querySelector('.amount').textContent), null, { timeout: 5000 });
     });
+    test('Sparschwein animiert beim Abhaken, aber nicht erneut beim Tages- oder Wochenwechsel', async () => {
+      const h = await start(layout);
+      await (await cell(h, 't1', 'pa', TODAY)).click();
+      assert.equal(await h.page.locator('.pig.wobble').count(), 1, 'beim Abhaken wackelt das Schwein');
+      assert.equal(await h.page.locator('.coin.drop').count(), 1, 'beim Abhaken fällt eine Münze');
+      if (layout === 'mobile') await h.page.locator('.dchip').nth(0).click(); else await h.page.locator('#nextw').click();
+      await h.page.waitForTimeout(100);
+      assert.equal(await h.page.locator('.pig.wobble').count(), 0, 'Wechsel darf die Animation nicht neu starten');
+      assert.equal(await h.page.locator('.coin.drop').count(), 0);
+    });
     test('nur Symbol, kein Aufgabenname im Raster', async () => {
       const h = await start(layout);
       const text = await h.page.locator('#board').innerText();

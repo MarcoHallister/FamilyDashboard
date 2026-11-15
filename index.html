@@ -1215,6 +1215,9 @@ function makePiggy(p) {
   }
   function update(prof) {
     root.style.setProperty('--pc', prof.color);
+    /* Animations-Klassen entfernen, sonst startet der Browser die Animation bei jedem Neuaufbau
+       der Ansicht (Tages-/Wochenwechsel) erneut, weil der Knoten neu eingesetzt wird. */
+    coin.classList.remove('drop'); pigEl.classList.remove('wobble');
     if (raf) return;
     shown = balance(prof.id);
     draw(shown);
