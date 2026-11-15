@@ -2,8 +2,12 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#f4f1ea">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Haushalt">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#f5f2ec">
 <title>Haushaltsplaner</title>
 <style>
 :root{
@@ -180,6 +184,93 @@ textarea.inp{min-height:140px;padding:10px;font-size:13px;font-family:monospace}
 
 #toast{position:fixed;left:50%;bottom:120px;-webkit-transform:translateX(-50%);transform:translateX(-50%);background:rgba(30,30,40,.92);color:#fff;padding:12px 20px;border-radius:24px;font-size:16px;z-index:100;opacity:0;-webkit-transition:opacity .2s;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
 #toast.show{opacity:1}
+
+/* =====================================================================
+   Design 2: weicheres Erscheinungsbild + Mobil-Ansicht
+   ===================================================================== */
+:root{
+  --bg:#f5f2ec; --ink:#1d2433; --muted:#6b7385; --line:#ece7dc; --dim:#efeae0;
+  --accent:#3b6fe0; --danger:#d0392e; --ok:#2f9e5a;
+  --shadow:0 1px 2px rgba(29,36,51,.06),0 8px 24px rgba(29,36,51,.07);
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,"Noto Sans",sans-serif}
+#app{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+#top{border-bottom:0;box-shadow:0 1px 0 var(--line),0 6px 18px rgba(29,36,51,.05);position:relative;z-index:5}
+.tab{border-radius:999px;background:var(--bg)}
+.tab.sel,.tab.pinned{background:#fff;border-color:var(--pc);box-shadow:0 2px 8px rgba(29,36,51,.08)}
+.navbtn{border-radius:14px;box-shadow:0 1px 2px rgba(29,36,51,.05)}
+.box{border-radius:50%}
+.c.done .box,.mrow.done .box{background:var(--pc)}
+.btn{border-radius:14px}
+.dialog{border-radius:22px}
+textarea.inp{font-size:16px}
+
+/* ---------- Mobil (Hochformat, schmale Fenster) ---------- */
+#daystrip{display:none}
+.mobile #top{flex-wrap:wrap;padding:6px 8px 0;min-height:0}
+.mobile #weeknav{order:1;margin-left:0;flex:1 1 auto;min-width:0}
+.mobile #lockind{order:2}
+.mobile #gear{order:3;min-width:46px}
+.mobile #tabs{order:4;flex:1 1 100%;padding:2px 0 8px}
+.mobile .navbtn{min-width:44px;min-height:44px;padding:0 8px;margin:0 2px;font-size:18px}
+.mobile .navbtn.today-btn{font-size:14px;padding:0 10px}
+.mobile #todayw[disabled]{display:none}
+.mobile #weeklabel{min-width:0;flex:1 1 auto;font-size:16px;white-space:nowrap}
+.mobile #weeklabel small{font-size:12px}
+.mobile #lockind button{min-height:44px;padding:0 8px;font-size:14px}
+.mobile .tab-name{font-size:16px;max-width:110px}
+.mobile .tab-main{padding-left:6px}
+.mobile #ghead,.mobile #gfoot{display:none}
+.mobile #board{padding:0}
+.mobile #daystrip{display:grid;grid-template-columns:repeat(7,1fr);grid-gap:5px;padding:10px 10px 4px;flex:0 0 auto}
+.mobile #gscroll{padding:4px 12px calc(24px + env(safe-area-inset-bottom))}
+.mobile #gbody{display:block}
+
+.dchip{border:0;background:#fff;border-radius:14px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;min-height:64px;box-shadow:0 1px 2px rgba(29,36,51,.07);min-width:0}
+.dchip .dw{font-size:12px;color:var(--muted);font-weight:600}
+.dchip .dn{font-size:19px;font-weight:800;line-height:1.25}
+.dchip .db{font-size:12px;font-weight:700;color:var(--accent);min-height:15px}
+.dchip.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.dchip.today .dn{color:var(--accent)}
+.dchip.alldone .db{color:var(--ok)}
+.dchip.sel{background:var(--accent);box-shadow:none}
+.dchip.sel .dw,.dchip.sel .dn,.dchip.sel .db{color:#fff}
+
+.mcard{background:#fff;border-radius:22px;box-shadow:var(--shadow);margin:10px 0 14px;overflow:hidden}
+.mhead{display:flex;align-items:center;padding:14px 16px 8px}
+.mhead .avatar{width:38px;height:38px;font-size:19px}
+.mname{font-size:22px;font-weight:800;margin-left:10px;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--pc)}
+.mprog{font-size:15px;color:var(--muted);font-weight:600;flex:0 0 auto}
+.mbar{height:8px;background:var(--dim);margin:0 16px 8px;border-radius:4px;overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--pc);border-radius:4px;-webkit-transition:width .4s;transition:width .4s}
+.mrow{display:flex;align-items:center;padding:2px 4px 2px 8px;border-top:1px solid var(--line);min-height:68px}
+.minfo{display:flex;align-items:center;flex:1 1 auto;min-width:0;background:none;border:0;text-align:left;min-height:64px;padding:0 4px}
+.minfo .tx{margin-left:12px;min-width:0}
+.minfo .tt{display:block;font-weight:700;font-size:18px;line-height:1.2}
+.minfo .tv{display:block;font-size:14px;color:var(--muted);margin-top:2px}
+.mcheck{flex:0 0 auto;width:68px;height:68px;border:0;background:none;display:flex;align-items:center;justify-content:center;padding:0}
+.mrow .box{width:46px;height:46px;font-size:26px}
+.mrow.done .tt{color:var(--muted)}
+.mrow.fut .box{opacity:.35;border-style:dashed}
+.mrow.lock .box{opacity:.6}
+.mrow.lock .box:after{content:"\1F512";position:absolute;right:-8px;bottom:-8px;font-size:14px}
+.mrow.pop .box{-webkit-animation:pop .35s;animation:pop .35s}
+.mempty{padding:18px 16px;text-align:center;color:var(--muted);font-size:17px;border-top:1px solid var(--line)}
+.mcard .pf{border-left:0;border-top:1px solid var(--line);justify-content:flex-start;padding:10px 16px;background:#fbf9f4}
+.mactions{display:flex;margin:2px 0}
+.mactions .btn{flex:1 1 0;margin:4px}
+.listbtn{width:100%;background:none;border:0;border-bottom:1px solid var(--line);text-align:left;min-height:60px;padding:4px 0}
+.listbtn .tt{font-weight:700;font-size:17px}
+
+/* Dialoge als Bottom-Sheet auf kleinen Bildschirmen */
+@media (max-width:700px){
+  .overlay{align-items:flex-end;padding:0}
+  .dialog,.dialog.small,.dialog.wide{max-width:none;width:100%;border-radius:24px 24px 0 0;max-height:94%}
+  .dialog.wide{height:94%}
+  .dlg-foot{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+  .pcards{grid-template-columns:1fr}
+  #toast{bottom:calc(40px + env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <body>
@@ -198,6 +289,7 @@ textarea.inp{min-height:140px;padding:10px;font-size:13px;font-family:monospace}
   <div id="banner"></div>
   <div id="board">
     <div id="ghead" class="grid"></div>
+    <div id="daystrip"></div>
     <div id="gscroll"><div id="gbody" class="grid"></div><div id="gextra"></div></div>
     <div id="gfoot" class="grid"></div>
   </div>
@@ -810,6 +902,9 @@ function renderBoard() {
   var head = $('ghead'), body = $('gbody'), foot = $('gfoot'), extra = $('gextra');
   var profs = shownProfiles();
   var dates = currentWeekDates();
+  ui.mobile = $('board').clientWidth < 700;
+  $('app').className = ui.mobile ? 'mobile' : '';
+  $('daystrip').innerHTML = '';
   head.innerHTML = ''; body.innerHTML = ''; extra.innerHTML = '';
   /* Sparschweine bleiben als Knoten erhalten (Animationen nicht unterbrechen) */
   foot.innerHTML = '';
@@ -825,6 +920,8 @@ function renderBoard() {
     boardCtx = null;
     return;
   }
+
+  if (ui.mobile) { renderMobile(profs, dates); return; }
 
   layoutVars(profs.length);
   var cols = 'var(--task-w) repeat(' + (profs.length * 7) + ', minmax(0,1fr))';
@@ -888,6 +985,127 @@ function renderBoard() {
   boardCtx = { profs: profs, dates: dates };
 }
 
+/* =====================================================================
+   Mobil-Ansicht: Tagesleiste + Karten je Profil
+   ===================================================================== */
+function curSelDay(dates) {
+  if (ui.selDay && dates.indexOf(ui.selDay) >= 0) return ui.selDay;
+  return dates.indexOf(ui.today) >= 0 ? ui.today : dates[0];
+}
+function shiftDay(n) {
+  var nd = addDays(curSelDay(currentWeekDates()), n);
+  ui.selDay = nd;
+  ui.weekOffset = Math.floor(diffDays(weekStart(nd), weekStart(ui.today)) / 7);
+  renderWeekNav();
+  renderBoard();
+}
+
+function renderMobile(profs, dates) {
+  var body = $('gbody'), extra = $('gextra'), strip = $('daystrip');
+  var sel = curSelDay(dates);
+  ui.selDay = sel;
+  body.innerHTML = ''; extra.innerHTML = ''; strip.innerHTML = '';
+
+  /* Tagesleiste mit Status je Tag */
+  dates.forEach(function (d, di) {
+    var due = 0, done = 0;
+    profs.forEach(function (p) {
+      data.tasks.forEach(function (t) {
+        var info = cellInfo(t, p, getAssign(t.id, p.id), d);
+        if (info.active) { due++; if (info.done) done++; }
+      });
+    });
+    var badge = '';
+    if (due) badge = d > ui.today ? '·' : (done === due ? '✓' : String(due - done));
+    strip.appendChild(h('button', {
+      class: 'dchip' + (d === sel ? ' sel' : '') + (d === ui.today ? ' today' : '') + (due && done === due && d <= ui.today ? ' alldone' : ''),
+      'aria-label': DAYS_LONG[di] + ' ' + fmtDate(d),
+      onclick: function () { ui.selDay = d; renderBoard(); }
+    }, [h('span', { class: 'dw' }, DAYS[di]), h('span', { class: 'dn' }, String(+d.slice(8))), h('span', { class: 'db' }, badge || ' ')]));
+  });
+
+  /* Karte je Profil */
+  var rows = computeRows(profs, [sel]);
+  profs.forEach(function (p, pi) {
+    var items = [], due = 0, done = 0;
+    rows.forEach(function (r) {
+      var a = r.assigned[pi];
+      var info = cellInfo(r.task, p, a, sel);
+      if (!info.active) return;
+      due++; if (info.done) done++;
+      items.push({ t: r.task, a: a, info: info });
+    });
+    var card = h('section', { class: 'mcard', style: { '--pc': p.color } }, [
+      h('div', { class: 'mhead' }, [avatarEl(p), h('div', { class: 'mname' }, p.name), h('div', { class: 'mprog' }, due ? done + ' von ' + due : '–')]),
+      due ? h('div', { class: 'mbar' }, h('i', { style: { width: Math.round(100 * done / due) + '%' } })) : null
+    ]);
+    items.forEach(function (it) {
+      var t = it.t, info = it.info;
+      var cls = 'mrow' + (info.done ? ' done' : ' open') + (info.rel === 'future' ? ' fut' : '') + (info.rel === 'past' && !isUnlocked() ? ' lock' : '');
+      card.appendChild(h('div', { class: cls }, [
+        h('button', { class: 'minfo', 'data-task': t.id, 'aria-label': 'Aufgabe ' + t.title + ' öffnen' }, [
+          taskIcon(t.icon, t.title),
+          h('span', { class: 'tx' }, [h('span', { class: 'tt' }, t.title), h('span', { class: 'tv' }, fmtMoney(valueFor(t, it.a)))])
+        ]),
+        h('button', { class: 'mcheck', 'data-t': t.id, 'data-p': p.id, 'data-d': sel, 'aria-label': t.title + (info.done ? ', erledigt' : ', offen') },
+          h('span', { class: 'box' }, info.done ? '✓' : ''))
+      ]));
+    });
+    if (!items.length) card.appendChild(h('div', { class: 'mempty' }, data.tasks.length ? 'Nichts geplant 🎈' : 'Noch keine Aufgaben angelegt.'));
+    var pg = piggies[p.id];
+    if (!pg) pg = piggies[p.id] = makePiggy(p);
+    pg.update(p);
+    card.appendChild(pg.root);
+    body.appendChild(card);
+  });
+
+  if (!data.tasks.length) {
+    extra.appendChild(h('div', { class: 'mactions' }, h('button', { class: 'btn', onclick: function () { requirePin(createSampleTasks); } }, 'Beispielaufgaben anlegen')));
+  }
+  extra.appendChild(h('div', { class: 'mactions' }, [
+    h('button', { class: 'btn', onclick: openTaskList }, 'Alle Aufgaben'),
+    h('button', { class: 'btn primary', onclick: function () { requirePin(function () { openTaskMask(null); }); } }, '+ Neue Aufgabe')
+  ]));
+  boardCtx = { profs: profs, dates: dates };
+}
+
+/* Liste aller Aufgaben (auch solche, die am gewählten Tag nicht fällig sind) */
+function openTaskList() {
+  var m = openModal('');
+  var parts = dialogParts(m, 'Alle Aufgaben');
+  var st = sortedTasks();
+  if (!st.length) parts.body.appendChild(h('div', { class: 'muted' }, 'Noch keine Aufgaben angelegt.'));
+  st.forEach(function (t) {
+    var who = data.profiles.filter(function (p) { return getAssign(t.id, p.id); }).map(function (p) { return p.name; }).join(', ') || 'nicht zugeordnet';
+    parts.body.appendChild(h('button', { class: 'listbtn row', onclick: function () { m.close(); openTaskMask(t.id); } }, [
+      taskIcon(t.icon, t.title),
+      h('div', { style: { 'margin-left': '12px', 'min-width': '0' } }, [
+        h('div', { class: 'tt' }, t.title),
+        h('div', { class: 'muted', style: { 'font-size': '14px' } }, who + ' · ' + fmtMoney(cents(t.value)))
+      ])
+    ]));
+  });
+  appendKids(parts.foot, [
+    h('button', { class: 'btn', onclick: m.close }, 'Schließen'),
+    h('button', { class: 'btn primary', onclick: function () { m.close(); requirePin(function () { openTaskMask(null); }); } }, '+ Neue Aufgabe')
+  ]);
+}
+
+/* Wischen wechselt den Tag */
+(function () {
+  var sx = null, sy = null, sc = $('gscroll');
+  sc.addEventListener('touchstart', function (e) {
+    if (!ui.mobile || e.touches.length !== 1) { sx = null; return; }
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive: true });
+  sc.addEventListener('touchend', function (e) {
+    if (sx === null) return;
+    var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    sx = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 45 && Math.abs(dx) > Math.abs(dy) * 2) shiftDay(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+
 /* Antippen im Raster (Event-Delegation) */
 $('gbody').addEventListener('click', function (e) {
   var tc = e.target.closest ? e.target.closest('[data-task]') : null;
@@ -922,6 +1140,16 @@ function toggleCompletion(t, p, d) {
   if (added) data.completions.push({ profileId: p.id, taskId: t.id, date: d, value: valueFor(t, a) / 100 });
   else data.completions.splice(idx, 1);
   save();
+  if (ui.mobile) {
+    renderBoard();
+    var mc = $('gbody').querySelectorAll('.mcheck');
+    for (var j = 0; j < mc.length; j++) {
+      if (mc[j].getAttribute('data-t') === t.id && mc[j].getAttribute('data-p') === p.id) { if (added) mc[j].parentNode.classList.add('pop'); break; }
+    }
+    var pg2 = piggies[p.id];
+    if (pg2) pg2.animateTo(before, balance(p.id), added);
+    return;
+  }
   /* betroffene Zelle neu zeichnen (ohne kompletten Neuaufbau) */
   var el = null, cand = $('gbody').querySelectorAll('[data-d="' + d + '"]');
   for (var i = 0; i < cand.length; i++) {
@@ -1524,9 +1752,9 @@ function setupProfiles() {
    ===================================================================== */
 function renderAll() { renderTabs(); renderWeekNav(); renderBoard(); renderLock(); renderBanner(); }
 
-$('prevw').addEventListener('click', function () { ui.weekOffset--; renderWeekNav(); renderBoard(); });
-$('nextw').addEventListener('click', function () { ui.weekOffset++; renderWeekNav(); renderBoard(); });
-$('todayw').addEventListener('click', function () { ui.weekOffset = 0; renderWeekNav(); renderBoard(); });
+$('prevw').addEventListener('click', function () { var sd = curSelDay(currentWeekDates()); ui.weekOffset--; ui.selDay = addDays(sd, -7); renderWeekNav(); renderBoard(); });
+$('nextw').addEventListener('click', function () { var sd = curSelDay(currentWeekDates()); ui.weekOffset++; ui.selDay = addDays(sd, 7); renderWeekNav(); renderBoard(); });
+$('todayw').addEventListener('click', function () { ui.weekOffset = 0; ui.selDay = ui.today; renderWeekNav(); renderBoard(); });
 $('gear').addEventListener('click', function () { requirePin(openSettings, 'Einstellungen'); });
 
 var resizeTimer = null;

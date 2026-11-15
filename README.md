@@ -19,6 +19,20 @@ Zielgerät: Amazon Fire HD 8 im Querformat mit Fully Kiosk Browser.
    eine Aufgabe abhaken, Fully komplett beenden, Gerät neu starten, Haken prüfen.
    Unter ⚙️ → *Speicher* zeigt die App, ob `localStorage` und die IndexedDB-Zweitablage funktionieren.
 
+## Ansichten
+
+- **Breit (Tablet, Querformat, Rechner):** Wochenraster Mo–So mit gemeinsamer Aufgabenspalte, je Profil ein Block.
+- **Schmal (Smartphone im Hochformat, unter 700 px):** Tagesleiste Mo–So oben (mit Anzahl offener Aufgaben je Tag),
+  darunter eine Karte je Profil mit großen Aufgabenzeilen, Fortschrittsbalken und Sparschwein.
+  Wischen nach links/rechts wechselt den Tag. „Alle Aufgaben“ öffnet die Aufgabenliste (auch für Aufgaben, die am gewählten Tag nicht fällig sind).
+  Dialoge erscheinen als Bottom-Sheet.
+
+## Nutzung auf dem iPhone
+
+1. Die Seite über eine https-Adresse (z. B. GitHub Pages) in Safari öffnen.
+2. Teilen → **Zum Home-Bildschirm**. Das Symbol kommt aus `apple-touch-icon.png`.
+3. Die App von dort starten, damit Safari die Daten zuverlässig behält. Regelmäßig ein Backup exportieren.
+
 ## Funktionsumfang
 
 | Konzept | Umsetzung |
