@@ -340,6 +340,29 @@ for (const layout of Object.keys(LAYOUTS)) {
       assert.equal(await h.page.locator('.coin.drop').count(), 0);
       assert.equal(await h.page.evaluate(() => document.getAnimations().filter((a) => /wobble|drop/.test(a.animationName || '')).length), 0, 'keine laufende Sparschwein-Animation');
     });
+    test('Profil-Tab und Pinnen starten keine Sparschwein-Animation', async () => {
+      const h = await start(layout);
+      await (await cell(h, 't1', 'pa', TODAY)).click();
+      await (await cell(h, 't1', 'pb', TODAY)).click();
+      const still = async (what) => {
+        await h.page.waitForTimeout(80);
+        assert.equal(await h.page.locator('.pig.wobble').count(), 0, what + ': Schwein wackelt erneut');
+        assert.equal(await h.page.locator('.coin.drop').count(), 0, what + ': Münze fällt erneut');
+        assert.equal(await h.page.evaluate(() => document.getAnimations().filter((a) => /wobble|drop/.test(a.animationName || '')).length), 0, what + ': laufende Animation');
+        assert.equal((await h.page.locator('.amount').first().innerText()).trim(), '0,50 €', what + ': Betrag zählt noch hoch');
+      };
+      await h.page.locator('.pinbtn').nth(1).click(); await still('Ben entpinnen');
+      await h.page.locator('.pinbtn').nth(0).click(); await still('Anna entpinnen');
+      await h.page.locator('.tab-main').nth(1).click(); await still('Tab Ben');
+      await h.page.locator('.tab-main').nth(0).click(); await still('Tab Anna');
+    });
+    test('Betrag springt beim Tageswechsel sofort auf den Endstand', async () => {
+      const h = await start(layout);
+      await (await cell(h, 't1', 'pa', TODAY)).click();
+      if (layout === 'mobile') await h.page.locator('.dchip').nth(0).click(); else await h.page.locator('#nextw').click();
+      await h.page.waitForTimeout(60);
+      assert.equal((await h.page.locator('.amount').first().innerText()).trim(), '0,50 €');
+    });
     test('Animations-Klassen verschwinden von selbst, auch ohne Neuaufbau', async () => {
       const h = await start(layout);
       await (await cell(h, 't1', 'pa', TODAY)).click();

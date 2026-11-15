@@ -317,7 +317,7 @@ textarea.inp{font-size:16px}
    Konstanten
    ===================================================================== */
 var STORE_KEY = 'haushaltsplaner.v2';
-var APP_VERSION = '1.4 (15.11.2026)';
+var APP_VERSION = '1.5 (15.11.2026)';
 var UNLOCK_MS = 120000;           /* PIN-Entsperrung: 2 Minuten */
 var PIN_MAX_FAILS = 5;
 var PIN_BLOCK_MS = 30000;
@@ -1222,7 +1222,8 @@ function makePiggy(p) {
     /* Animations-Klassen entfernen, sonst startet der Browser die Animation bei jedem Neuaufbau
        der Ansicht (Tages-/Wochenwechsel) erneut, weil der Knoten neu eingesetzt wird. */
     coin.classList.remove('drop'); pigEl.classList.remove('wobble');
-    if (raf) return;
+    /* laufendes Hochzählen beenden: bei jedem Neuaufbau (Tag, Woche, Profil-Tab, Pinnen) sofort den Endstand zeigen */
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
     shown = balance(prof.id);
     draw(shown);
   }
