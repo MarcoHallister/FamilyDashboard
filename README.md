@@ -61,6 +61,26 @@ Zeitpläne und Beträge sind Vorschläge und lassen sich je Aufgabe und Profil �
 | Backup | Export als JSON-Datei oder als Text zum Kopieren; Import per Datei oder eingefügtem Text |
 | Speicherung | `localStorage` (Schlüssel `haushaltsplaner.v2`), zusätzlich gespiegelt in IndexedDB; beim Start gewinnt der neuere Stand. Warnbanner, wenn beides nicht funktioniert |
 
+## Tests
+
+Die Abnahmetests in `tests/app.test.js` halten die Anforderungen aus dem Konzept fest und laufen in beiden Layouts
+(Smartphone-Hochformat und Tablet-Raster) mit eingefrorener Uhr (Mittwoch, 18.11.2026):
+
+- Sperre: heute frei, Vortage nur mit PIN (auch Zurücknehmen), Zukunft immer gesperrt, 2-Minuten-Entsperrung läuft ab
+  (auch nach Einstellungen, Maske, Auszahlung, Löschen), keine Entsperrung nach Neuladen, Sperre nach 5 Fehlversuchen
+- Zeitpläne (Wochentage, Intervall ab Startdatum, Sommerzeit), Zellzustände, Zuordnung je Profil
+- Aufgabenmaske (Lesemodus, Bearbeiten nur mit PIN, Validierung, Löschen), Auszahlung, Einstellungen, Backup
+- Beträge als Momentaufnahme, Saldo, nur Symbole statt Namen, Fallback-Icon, Pinnen, Wochennavigation
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+Mit `APP_URL=https://… npm test` lässt sich auch die veröffentlichte Seite prüfen. Bei jedem Push läuft die Suite
+zusätzlich über GitHub Actions (`.github/workflows/test.yml`).
+
 ## Annahmen (aus Konzept Abschnitt 8 übernommen bzw. ergänzt)
 
 - Zukünftige Tage sind nicht abhakbar; ein gemeinsamer Eltern-PIN für alle Profile.
