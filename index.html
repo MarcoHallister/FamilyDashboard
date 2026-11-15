@@ -282,6 +282,98 @@ textarea.inp{font-size:16px}
 .minfo .ticon.emo,.minfo .ticon.ini{width:54px;height:54px}
 .minfo .ticon.emo{font-size:40px}
 .mcheck{width:100%;height:56px}
+
+/* =====================================================================
+   Kalender
+   ===================================================================== */
+:root{--cal:#1f8a7a;--cal-bg:#e2f3f0;--cal-ink:#14594f}
+#main{flex:1 1 auto;display:flex;min-height:0;min-width:0}
+#main > #board{flex:1 1 0;min-width:0}
+#calpanel{display:none;flex:0 0 268px;flex-direction:column;background:#fff;margin:6px 6px 6px 0;border-radius:18px;box-shadow:var(--shadow);overflow:hidden;min-height:0}
+.withpanel #calpanel{display:flex}
+#calbtn{display:none;min-width:48px;min-height:48px;border:0;background:none;font-size:24px}
+.calon:not(.withpanel):not(.mobile) #calbtn{display:inline-block}
+.calhead{display:flex;align-items:center;padding:12px 12px 8px 14px;flex:0 0 auto}
+.caltitle{flex:1 1 auto;min-width:0}
+.caltitle b{display:block;font-size:18px}
+.caldate{display:block;font-size:13px;color:var(--muted)}
+.calmax{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink);flex:0 0 auto;padding:0}
+.callist{flex:1 1 auto;overflow-y:auto;padding:0 8px 8px;min-height:0;-webkit-overflow-scrolling:touch}
+.calempty{color:var(--muted);text-align:center;padding:20px 8px;font-size:15px}
+.cev{display:flex;width:100%;text-align:left;background:var(--cal-bg);border:0;border-left:4px solid var(--cal);border-radius:10px;padding:8px 10px;margin:0 0 6px;min-height:48px}
+.cev .ct{flex:0 0 auto;min-width:72px;margin-right:10px;font-size:13px;font-weight:700;color:var(--cal);padding-top:2px}
+.cev .cx{min-width:0;flex:1 1 auto}
+.cev .cn{display:block;font-weight:600;font-size:15px;line-height:1.25;word-wrap:break-word}
+.cev .cl{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.cev.past{opacity:.5}
+.cev.now{background:var(--cal);color:#fff}
+.cev.now .ct,.cev.now .cl{color:#fff}
+.cmorebtn{width:100%;border:0;background:none;color:var(--cal);font-weight:700;min-height:44px}
+.calfoot{padding:6px 12px 10px;font-size:12px;color:var(--muted);text-align:center;flex:0 0 auto}
+.calfoot.err{color:var(--danger)}
+.calcard{background:#fff;border-radius:22px;box-shadow:var(--shadow);margin:10px 0 4px;padding-bottom:4px}
+.calcard .callist{padding:0 10px 4px;overflow:visible}
+.evwhen{font-weight:700;margin-bottom:8px}
+.evloc{margin-bottom:8px}
+.evdesc{white-space:pre-wrap;color:var(--muted);word-wrap:break-word}
+.calmsg{margin-top:8px;font-size:14px;color:var(--muted)}
+
+.dialog.cal{max-width:none;width:100%;height:100%;border-radius:0}
+.calbar{display:flex;align-items:center;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.calnav{display:flex;align-items:center}
+.calnav .btn{margin:2px;padding:0 14px}
+.caltitle2{flex:1 1 auto;text-align:center;font-weight:800;font-size:19px;min-width:140px;padding:0 8px}
+.calseg{display:flex;margin:2px 6px}
+.calseg button{min-height:44px;padding:0 16px;border:1px solid var(--line);background:#fff;font-weight:600}
+.calseg button:first-child{border-radius:12px 0 0 12px}
+.calseg button:last-child{border-radius:0 12px 12px 0;border-left:0}
+.calseg button.on{background:var(--cal);border-color:var(--cal);color:#fff}
+.calclose{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:20px;margin:2px}
+.calbody{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+@media (max-width:700px){
+  .dialog.cal{max-height:100%;height:100%;border-radius:0}
+  .calbar{padding:6px 6px;padding-top:calc(6px + env(safe-area-inset-top))}
+  .calnav .btn{min-width:44px;padding:0 8px;margin:2px 1px}
+  .calseg{margin:2px 4px 2px auto}
+  .calseg button{padding:0 10px}
+  .calclose{margin:2px 0 2px 2px}
+  .caltitle2{order:5;flex:1 1 100%;padding:4px 0 2px}
+}
+
+.cmon{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.cwd{display:grid;grid-template-columns:repeat(7,1fr);flex:0 0 auto}
+.cwd div{text-align:center;padding:6px 0;font-size:13px;font-weight:700;color:var(--muted)}
+.cgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));flex:1 1 auto;min-height:0;border-top:1px solid var(--line)}
+.cday{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;padding:2px 3px;text-align:left;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;align-items:stretch}
+.cday:nth-child(7n){border-right:0}
+.cday.out{background:#f8f6f1;color:#9aa0ad}
+.cnum{font-size:14px;font-weight:700;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;align-self:flex-start}
+.cday.today .cnum{background:var(--accent);color:#fff}
+.cchip{display:block;font-size:11px;line-height:1.3;padding:1px 4px;margin-top:2px;border-radius:5px;background:var(--cal-bg);color:var(--cal-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;border:0;width:100%}
+.cchip.all{background:var(--cal);color:#fff}
+.cmore{font-size:11px;color:var(--muted);margin-top:2px}
+.cdots{display:flex;flex-wrap:wrap;margin-top:2px}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--cal);margin:1px}
+
+.wkhead{display:grid;grid-template-columns:52px repeat(7,minmax(0,1fr));flex:0 0 auto;border-bottom:1px solid var(--line)}
+.whd{text-align:center;padding:6px 2px;font-size:13px;color:var(--muted)}
+.whd b{display:block;font-size:18px;color:var(--ink);line-height:1.6}
+.whd.today b{color:#fff;background:var(--accent);border-radius:999px;width:34px;margin:0 auto}
+.wkall{display:grid;grid-template-columns:52px repeat(7,minmax(0,1fr));flex:0 0 auto;border-bottom:1px solid var(--line);min-height:28px}
+.wkall .lbl2{font-size:10px;color:var(--muted);padding:6px 4px}
+.wkall > div{padding:2px;min-width:0}
+.wkscroll{flex:1 1 auto;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+.wkgrid{display:grid;grid-template-columns:52px repeat(7,minmax(0,1fr));position:relative}
+.wkhours div{height:48px;font-size:11px;color:var(--muted);text-align:right;padding:0 6px;position:relative;top:-7px}
+.wkcol{position:relative;border-left:1px solid var(--line);background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px);background-size:100% 48px}
+.wkcol.today{background-color:#fff9e8}
+.wev{position:absolute;box-sizing:border-box;border:0;border-left:3px solid var(--cal);background:var(--cal-bg);color:var(--cal-ink);border-radius:6px;overflow:hidden;font-size:12px;line-height:1.2;text-align:left;padding:2px 4px}
+.wev b{display:block}
+.nowline{position:absolute;left:0;right:0;height:2px;background:#e03a3a;z-index:2;pointer-events:none}
+.agenda{flex:1 1 auto;overflow-y:auto;padding:6px 10px 16px;min-height:0;-webkit-overflow-scrolling:touch}
+.agd{font-weight:700;padding:12px 4px 6px;color:var(--muted);font-size:14px}
+.agd.today{color:var(--accent)}
+.agnone{color:var(--muted);padding:0 6px 4px}
 .ver{color:var(--muted);font-size:12px;text-align:center;padding:10px 0 4px}
 </style>
 </head>
@@ -296,14 +388,18 @@ textarea.inp{font-size:16px}
       <button class="navbtn today-btn" id="todayw">Heute</button>
     </div>
     <div id="lockind"></div>
+    <button id="calbtn" aria-label="Kalender öffnen">&#128197;</button>
     <button id="gear" aria-label="Einstellungen">&#9881;&#65039;</button>
   </header>
   <div id="banner"></div>
+  <div id="main">
   <div id="board">
     <div id="ghead" class="grid"></div>
     <div id="daystrip"></div>
     <div id="gscroll"><div id="gbody" class="grid"></div><div id="gextra"></div></div>
     <div id="gfoot" class="grid"></div>
+  </div>
+  <aside id="calpanel" aria-label="Kalender heute"></aside>
   </div>
 </div>
 <div id="modals"></div>
@@ -317,7 +413,7 @@ textarea.inp{font-size:16px}
    Konstanten
    ===================================================================== */
 var STORE_KEY = 'haushaltsplaner.v2';
-var APP_VERSION = '1.5 (15.11.2026)';
+var APP_VERSION = '1.6 (15.11.2026)';
 var UNLOCK_MS = 120000;           /* PIN-Entsperrung: 2 Minuten */
 var PIN_MAX_FAILS = 5;
 var PIN_BLOCK_MS = 30000;
@@ -914,8 +1010,12 @@ function renderBoard() {
   var head = $('ghead'), body = $('gbody'), foot = $('gfoot'), extra = $('gextra');
   var profs = shownProfiles();
   var dates = currentWeekDates();
-  ui.mobile = $('board').clientWidth < 700;
-  $('app').className = ui.mobile ? 'mobile' : '';
+  var aw = $('app').clientWidth;
+  ui.mobile = aw < 700;
+  var acls = ui.mobile ? 'mobile' : '';
+  if (cal.cfg.mode !== 'off') acls += (acls ? ' ' : '') + 'calon' + (aw >= 900 ? ' withpanel' : '');
+  $('app').className = acls;
+  renderCalPanel();
   $('daystrip').innerHTML = '';
   head.innerHTML = ''; body.innerHTML = ''; extra.innerHTML = '';
   /* Sparschweine bleiben als Knoten erhalten (Animationen nicht unterbrechen) */
@@ -1018,6 +1118,7 @@ function renderMobile(profs, dates) {
   var sel = curSelDay(dates);
   ui.selDay = sel;
   body.innerHTML = ''; extra.innerHTML = ''; strip.innerHTML = '';
+  if (cal.cfg.mode !== 'off') body.appendChild(calCard());
 
   /* Tagesleiste mit Status je Tag */
   dates.forEach(function (d, di) {
@@ -1556,6 +1657,7 @@ function openSettings() {
   var exportText = null;
   function close() {
     ui.protectedOpen--;
+    calDraft = null;
     var i = lockListeners.indexOf(onLock);
     if (i >= 0) lockListeners.splice(i, 1);
     m.close();
@@ -1617,6 +1719,8 @@ function openSettings() {
     b.appendChild(h('div', { class: 'sec' }, [h('h3', null, 'Sparschwein'),
       h('div', { class: 'row' }, [h('span', null, 'Sparschwein ist voll bei'), fullInp, h('span', null, '€')]),
       h('div', { class: 'muted', style: { 'font-size': '14px' } }, 'Nur für die Füllhöhe der Grafik. Der Saldo kann beliebig wachsen.')]));
+
+    b.appendChild(calSettingsSection(build));
 
     /* PIN */
     b.appendChild(h('div', { class: 'sec' }, [h('h3', null, 'PIN'),
@@ -1782,6 +1886,743 @@ function setupProfiles() {
 }
 
 /* =====================================================================
+   Kalender (nur lesen): ICS-Parser, Zeitzonen, Wiederholungen
+   ===================================================================== */
+var MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+var MON3 = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+var WD_MAP = { MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6, SU: 7 };
+
+function ymd(y, m, d) { return y + '-' + pad2(m) + '-' + pad2(d); }
+function daysInMonth(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
+function localMs(date) { var p = date.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).getTime(); }
+function msToDate(ms) { return localDateStr(new Date(ms)); }
+function hhmm(ms) { var d = new Date(ms); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+
+/* --- Zeitzonen über Intl (IANA-Namen wie Apple sie liefert) --- */
+var tzFmtCache = {};
+function tzFmt(tz) {
+  if (tzFmtCache.hasOwnProperty(tz)) return tzFmtCache[tz];
+  var f = null;
+  try {
+    f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+  } catch (e) { f = null; }
+  tzFmtCache[tz] = f;
+  return f;
+}
+function tzOffsetMs(utcMs, tz) {
+  var f = tzFmt(tz);
+  if (!f) return null;
+  var p = {};
+  f.formatToParts(new Date(utcMs)).forEach(function (x) { p[x.type] = x.value; });
+  var asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute, +p.second);
+  return asUtc - Math.floor(utcMs / 1000) * 1000;
+}
+function zonedToUtc(y, mo, d, h, mi, s, tz) {
+  var guess = Date.UTC(y, mo - 1, d, h, mi, s);
+  var off = tzOffsetMs(guess, tz);
+  if (off === null) return new Date(y, mo - 1, d, h, mi, s).getTime();   /* unbekannte Zone: Gerätezeit */
+  var t = guess - off;
+  var off2 = tzOffsetMs(t, tz);
+  if (off2 !== off) t = guess - off2;                                      /* Sommerzeit-Grenze */
+  return t;
+}
+
+/* --- ICS-Zeilen --- */
+function icsUnfold(text) {
+  return String(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n[ \t]/g, '').split('\n');
+}
+function icsUnescape(v) { return v.replace(/\\([nN,;\\])/g, function (m, c) { return (c === 'n' || c === 'N') ? '\n' : c; }); }
+function icsSplitLine(line) {
+  var inQ = false, idx = -1, i;
+  for (i = 0; i < line.length; i++) {
+    var ch = line.charAt(i);
+    if (ch === '"') inQ = !inQ;
+    else if (ch === ':' && !inQ) { idx = i; break; }
+  }
+  if (idx < 0) return null;
+  var parts = line.slice(0, idx).split(';'), params = {};
+  for (i = 1; i < parts.length; i++) {
+    var eq = parts[i].indexOf('=');
+    if (eq > 0) params[parts[i].slice(0, eq).toUpperCase()] = parts[i].slice(eq + 1).replace(/^"|"$/g, '');
+  }
+  return { name: parts[0].toUpperCase(), params: params, value: line.slice(idx + 1) };
+}
+function icsParseDate(value, params) {
+  var m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec(String(value).trim());
+  if (!m) return null;
+  return {
+    y: +m[1], mo: +m[2], d: +m[3], h: +(m[4] || 0), mi: +(m[5] || 0), s: +(m[6] || 0),
+    utc: !!m[7], tz: (params && params.TZID) || null,
+    allDay: !m[4] || !!(params && params.VALUE === 'DATE'),
+    date: m[1] + '-' + m[2] + '-' + m[3]
+  };
+}
+function dtToMs(o) {
+  if (o.utc) return Date.UTC(o.y, o.mo - 1, o.d, o.h, o.mi, o.s);
+  if (o.tz) return zonedToUtc(o.y, o.mo, o.d, o.h, o.mi, o.s, o.tz);
+  return new Date(o.y, o.mo - 1, o.d, o.h, o.mi, o.s).getTime();         /* "schwebende" Zeit: Gerätezeit */
+}
+function icsDuration(v) {
+  var m = /^([+-])?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/.exec(String(v).trim());
+  if (!m) return null;
+  var ms = ((+m[2] || 0) * 7 * 86400 + (+m[3] || 0) * 86400 + (+m[4] || 0) * 3600 + (+m[5] || 0) * 60 + (+m[6] || 0)) * 1000;
+  return m[1] === '-' ? -ms : ms;
+}
+
+function icsFinish(r) {
+  var s = r.dtstart;
+  if (!s) return null;
+  r.cancelled = r.status === 'CANCELLED';
+  if (!r.uid) r.uid = 'x' + Math.random().toString(36).slice(2);
+  r.allDay = s.allDay;
+  if (s.allDay) {
+    var e = r.dtend ? r.dtend.date : (r.duration ? addDays(s.date, Math.max(1, Math.round(r.duration / 86400000))) : addDays(s.date, 1));
+    if (e <= s.date) e = addDays(s.date, 1);
+    r.startDate = s.date; r.endDate = e; r.spanDays = diffDays(e, s.date);
+  } else {
+    r.startMs = dtToMs(s);
+    var en = (r.dtend && !r.dtend.allDay) ? dtToMs(r.dtend) : (r.duration !== undefined && r.duration !== null ? r.startMs + r.duration : r.startMs);
+    if (en < r.startMs) en = r.startMs;
+    r.durMs = en - r.startMs;
+  }
+  return r;
+}
+
+/* Liest alle VEVENT-Blöcke eines ICS-Textes. */
+function icsParseEvents(text) {
+  var lines = icsUnfold(text), out = [], cur = null, depth = 0, i, p;
+  for (i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    if (!line) continue;
+    var up = line.toUpperCase();
+    if (up === 'BEGIN:VEVENT') { cur = { exdates: [] }; depth = 0; continue; }
+    if (!cur) continue;
+    if (up.indexOf('BEGIN:') === 0) { depth++; continue; }               /* z. B. VALARM */
+    if (up.indexOf('END:') === 0) {
+      if (depth > 0) { depth--; continue; }
+      if (up === 'END:VEVENT') { out.push(cur); cur = null; }
+      continue;
+    }
+    if (depth > 0) continue;
+    p = icsSplitLine(line);
+    if (!p) continue;
+    switch (p.name) {
+      case 'UID': cur.uid = p.value; break;
+      case 'SUMMARY': cur.title = icsUnescape(p.value); break;
+      case 'LOCATION': cur.location = icsUnescape(p.value); break;
+      case 'DESCRIPTION': cur.description = icsUnescape(p.value); break;
+      case 'STATUS': cur.status = p.value.toUpperCase(); break;
+      case 'DTSTART': cur.dtstart = icsParseDate(p.value, p.params); break;
+      case 'DTEND': cur.dtend = icsParseDate(p.value, p.params); break;
+      case 'DURATION': cur.duration = icsDuration(p.value); break;
+      case 'RRULE': cur.rrule = p.value; break;
+      case 'RECURRENCE-ID': cur.rid = icsParseDate(p.value, p.params); break;
+      case 'EXDATE':
+        p.value.split(',').forEach(function (v) { var d = icsParseDate(v, p.params); if (d) cur.exdates.push(d); });
+        break;
+    }
+  }
+  return out.map(icsFinish).filter(Boolean);
+}
+
+/* --- Wiederholungsregeln (DAILY, WEEKLY, MONTHLY, YEARLY) --- */
+function rruleParse(str) {
+  var r = { freq: '', interval: 1, count: 0, until: '', byday: [], bymonthday: [], bymonth: [], unsupported: false };
+  String(str).split(';').forEach(function (kv) {
+    var i = kv.indexOf('=');
+    if (i < 0) return;
+    var k = kv.slice(0, i).toUpperCase(), v = kv.slice(i + 1);
+    switch (k) {
+      case 'FREQ': r.freq = v.toUpperCase(); break;
+      case 'INTERVAL': r.interval = Math.max(1, parseInt(v, 10) || 1); break;
+      case 'COUNT': r.count = parseInt(v, 10) || 0; break;
+      case 'UNTIL': r.until = v.slice(0, 4) + '-' + v.slice(4, 6) + '-' + v.slice(6, 8); break;
+      case 'BYDAY':
+        v.split(',').forEach(function (x) {
+          var m = /^([+-]?\d+)?(MO|TU|WE|TH|FR|SA|SU)$/i.exec(x.trim());
+          if (m) r.byday.push({ n: m[1] ? parseInt(m[1], 10) : 0, d: WD_MAP[m[2].toUpperCase()] });
+        });
+        break;
+      case 'BYMONTHDAY': r.bymonthday = v.split(',').map(Number).filter(Boolean); break;
+      case 'BYMONTH': r.bymonth = v.split(',').map(Number).filter(Boolean); break;
+      case 'BYSETPOS': case 'BYWEEKNO': case 'BYYEARDAY': case 'BYHOUR': case 'BYMINUTE': case 'BYSECOND': r.unsupported = true; break;
+    }
+  });
+  if (['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].indexOf(r.freq) < 0) r.unsupported = true;
+  return r;
+}
+
+/* Datumsliste (Wanduhr-Daten) ab startDate bis limit, nach COUNT/UNTIL begrenzt. */
+function rruleDates(r, startDate, limit) {
+  var out = [], count = 0, guard = 0, i, k;
+  var sy = +startDate.slice(0, 4), sm = +startDate.slice(5, 7), sd = +startDate.slice(8, 10);
+  var untilDate = r.until || '9999-12-31';
+  function push(d) {
+    if (d < startDate) return true;
+    if (d > untilDate || d > limit) return false;
+    out.push(d); count++;
+    return !(r.count && count >= r.count);
+  }
+  function monthDays(y, m) {
+    var dim = daysInMonth(y, m), days = [];
+    if (r.bymonthday.length) {
+      r.bymonthday.forEach(function (x) { var dd = x > 0 ? x : dim + x + 1; if (dd >= 1 && dd <= dim) days.push(dd); });
+    } else if (r.byday.length) {
+      r.byday.forEach(function (b) {
+        var list = [];
+        for (i = 1; i <= dim; i++) if (isoDay(ymd(y, m, i)) === b.d) list.push(i);
+        if (!b.n) days = days.concat(list);
+        else { var dd = b.n > 0 ? list[b.n - 1] : list[list.length + b.n]; if (dd) days.push(dd); }
+      });
+    } else if (sd <= dim) days.push(sd);
+    days.sort(function (a, b) { return a - b; });
+    return days.filter(function (x, idx) { return idx === 0 || x !== days[idx - 1]; });
+  }
+  function inMonthFilter(d) { return !r.bymonth.length || r.bymonth.indexOf(+d.slice(5, 7)) >= 0; }
+  var d, stop = false;
+  if (r.freq === 'DAILY') {
+    for (k = 0; !stop; k += r.interval) {
+      if (++guard > 20000) break;
+      d = addDays(startDate, k);
+      if (d > limit || d > untilDate) break;
+      if (!inMonthFilter(d)) continue;
+      if (r.byday.length && !r.byday.some(function (b) { return b.d === isoDay(d); })) continue;
+      if (r.bymonthday.length) {
+        var dim = daysInMonth(+d.slice(0, 4), +d.slice(5, 7)), dm = +d.slice(8, 10);
+        if (!r.bymonthday.some(function (x) { return (x > 0 ? x : dim + x + 1) === dm; })) continue;
+      }
+      if (!push(d)) break;
+    }
+  } else if (r.freq === 'WEEKLY') {
+    var ws = weekStart(startDate);
+    var wdays = (r.byday.length ? r.byday.map(function (b) { return b.d; }) : [isoDay(startDate)]).sort(function (a, b) { return a - b; });
+    for (k = 0; !stop; k += r.interval) {
+      if (++guard > 20000) break;
+      var base = addDays(ws, k * 7);
+      if (base > limit || base > untilDate) break;
+      for (i = 0; i < wdays.length; i++) {
+        d = addDays(base, wdays[i] - 1);
+        if (!inMonthFilter(d)) continue;
+        if (!push(d)) { stop = true; break; }
+      }
+    }
+  } else if (r.freq === 'MONTHLY') {
+    for (k = 0; !stop; k += r.interval) {
+      if (++guard > 5000) break;
+      var mm0 = (sm - 1) + k, y = sy + Math.floor(mm0 / 12), m = mm0 % 12 + 1;
+      if (ymd(y, m, 1) > limit || ymd(y, m, 1) > untilDate) break;
+      if (r.bymonth.length && r.bymonth.indexOf(m) < 0) continue;
+      var md = monthDays(y, m);
+      for (i = 0; i < md.length; i++) if (!push(ymd(y, m, md[i]))) { stop = true; break; }
+    }
+  } else if (r.freq === 'YEARLY') {
+    for (k = 0; !stop; k += r.interval) {
+      if (++guard > 2000) break;
+      var yy = sy + k;
+      if (ymd(yy, 1, 1) > limit || ymd(yy, 1, 1) > untilDate) break;
+      var months = r.bymonth.length ? r.bymonth.slice().sort(function (a, b) { return a - b; }) : [sm];
+      for (var j = 0; j < months.length && !stop; j++) {
+        var yd = monthDays(yy, months[j]);
+        for (i = 0; i < yd.length; i++) if (!push(ymd(yy, months[j], yd[i]))) { stop = true; break; }
+      }
+    }
+  }
+  return out;
+}
+
+/* Liefert alle Termin-Instanzen, die sich mit [fromDate, toDate] (lokale Tage, inklusive) überschneiden. */
+function calExpand(raws, fromDate, toDate) {
+  var fromMs = localMs(fromDate), toMs = localMs(addDays(toDate, 1));
+  var limit = addDays(toDate, 2), overrides = {}, out = [];
+  function ridKey(o) { return o.allDay ? o.date : dtToMs(o); }
+  raws.forEach(function (r) { if (r.rid) overrides[r.uid + '|' + ridKey(r.rid)] = true; });
+
+  function add(r, startKey) {
+    var inst = { uid: r.uid, title: r.title || '', location: r.location || '', description: r.description || '', allDay: r.allDay };
+    if (r.allDay) {
+      inst.startDate = startKey; inst.endDate = addDays(startKey, r.spanDays);
+      if (!(inst.startDate <= toDate && inst.endDate > fromDate)) return;
+      inst.start = localMs(inst.startDate); inst.end = localMs(inst.endDate);
+    } else {
+      inst.start = startKey; inst.end = startKey + r.durMs;
+      if (!(inst.start < toMs && (inst.end > fromMs || (r.durMs === 0 && inst.start >= fromMs)))) return;
+    }
+    out.push(inst);
+  }
+
+  raws.forEach(function (r) {
+    if (r.rid) { if (!r.cancelled) add(r, r.allDay ? r.startDate : r.startMs); return; }
+    if (r.cancelled) return;
+    if (!r.rrule) { add(r, r.allDay ? r.startDate : r.startMs); return; }
+    var rule = rruleParse(r.rrule);
+    if (rule.unsupported) { add(r, r.allDay ? r.startDate : r.startMs); return; }
+    var ex = {};
+    r.exdates.forEach(function (e) { ex[r.allDay ? e.date : dtToMs(e)] = true; });
+    var s = r.dtstart;
+    rruleDates(rule, s.date, limit).forEach(function (dstr) {
+      var key = r.allDay ? dstr : dtToMs({ y: +dstr.slice(0, 4), mo: +dstr.slice(5, 7), d: +dstr.slice(8, 10), h: s.h, mi: s.mi, s: s.s, utc: s.utc, tz: s.tz });
+      if (ex[key] || overrides[r.uid + '|' + key]) return;
+      add(r, key);
+    });
+  });
+  out.sort(function (a, b) { return (b.allDay ? 1 : 0) - (a.allDay ? 1 : 0) || a.start - b.start || (a.title < b.title ? -1 : 1); });
+  return out;
+}
+
+/* Termine eines lokalen Tages (Ganztägige zuerst, dann nach Beginn). */
+function calOnDate(raws, date) { return calExpand(raws, date, date); }
+/* Alle lokalen Tage, die ein Termin berührt, innerhalb von [a, b]. */
+function calDatesOf(ev, a, b) {
+  var s = ev.allDay ? ev.startDate : msToDate(ev.start);
+  var e = ev.allDay ? addDays(ev.endDate, -1) : msToDate(ev.end > ev.start ? ev.end - 1 : ev.end);
+  if (s < a) s = a;
+  if (e > b) e = b;
+  var out = [];
+  for (var d = s; d <= e; d = addDays(d, 1)) out.push(d);
+  return out;
+}
+function evTimeLabel(ev, date) {
+  if (ev.allDay) return 'ganztägig';
+  var ds = msToDate(ev.start), de = msToDate(ev.end > ev.start ? ev.end - 1 : ev.end);
+  if (ds === date && de === date) return hhmm(ev.start) + (ev.end > ev.start ? '–' + hhmm(ev.end) : '');
+  if (ds === date) return 'ab ' + hhmm(ev.start);
+  if (de === date) return 'bis ' + hhmm(ev.end);
+  return 'ganztägig';
+}
+
+/* =====================================================================
+   Kalender: Zustand, Abruf, Zwischenspeicher
+   ===================================================================== */
+var CAL_KEY = 'haushaltsplaner.cal';
+var CAL_CACHE_KEY = 'haushaltsplaner.calcache';
+var HOUR_H = 48;                       /* Höhe einer Stunde in der Wochenansicht (muss zum CSS passen) */
+var cal = { cfg: { mode: 'off', url: '', token: '', view: 'month' }, ics: [], raws: [], fetchedAt: 0, error: '', cover: null, busy: false, views: [] };
+var calDraft = null;
+
+function calLoadCfg() {
+  try {
+    var o = JSON.parse(localStorage.getItem(CAL_KEY) || 'null');
+    if (o && typeof o === 'object') {
+      cal.cfg.mode = ['off', 'demo', 'ics', 'worker'].indexOf(o.mode) >= 0 ? o.mode : 'off';
+      cal.cfg.url = typeof o.url === 'string' ? o.url : '';
+      cal.cfg.token = typeof o.token === 'string' ? o.token : '';
+      cal.cfg.view = o.view === 'week' ? 'week' : 'month';
+    }
+  } catch (e) { /* ohne Speicher: Kalender bleibt aus */ }
+}
+function calSaveCfg() { try { localStorage.setItem(CAL_KEY, JSON.stringify(cal.cfg)); } catch (e) { /* ignorieren */ } }
+function calReparse() {
+  var all = [];
+  cal.ics.forEach(function (t) { try { all = all.concat(icsParseEvents(t)); } catch (e) { /* defekten Teil überspringen */ } });
+  cal.raws = all;
+}
+function calLoadCache() {
+  try {
+    var c = JSON.parse(localStorage.getItem(CAL_CACHE_KEY) || 'null');
+    if (c && c.mode === cal.cfg.mode && c.url === cal.cfg.url && Array.isArray(c.ics)) {
+      cal.ics = c.ics; cal.cover = c.cover || null; cal.fetchedAt = +c.fetchedAt || 0;
+      calReparse();
+    }
+  } catch (e) { /* ignorieren */ }
+}
+function calSaveCache() {
+  try { localStorage.setItem(CAL_CACHE_KEY, JSON.stringify({ mode: cal.cfg.mode, url: cal.cfg.url, ics: cal.ics, cover: cal.cover, fetchedAt: cal.fetchedAt })); } catch (e) { /* zu groß: ohne Zwischenspeicher */ }
+}
+function calClearCache() { try { localStorage.removeItem(CAL_CACHE_KEY); } catch (e) { /* ignorieren */ } }
+
+/* Beispieltermine zum Ausprobieren der Oberfläche (schwebende Ortszeit). */
+function calDemoIcs() {
+  var t = ui.today;
+  function dt(date, hm) { return date.replace(/-/g, '') + 'T' + hm + '00'; }
+  function dd(date) { return date.replace(/-/g, ''); }
+  var n = 0;
+  function ev(lines) { n++; return ['BEGIN:VEVENT', 'UID:demo' + n].concat(lines, ['END:VEVENT']).join('\r\n'); }
+  var ws = weekStart(t);
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0',
+    ev(['SUMMARY:Zahnarzt Leah', 'LOCATION:Praxis Dr. Meier', 'DTSTART:' + dt(t, '1530'), 'DTEND:' + dt(t, '1630')]),
+    ev(['SUMMARY:Gelbe Tonne', 'DTSTART;VALUE=DATE:' + dd(t), 'DTEND;VALUE=DATE:' + dd(addDays(t, 1))]),
+    ev(['SUMMARY:Elternabend', 'LOCATION:Schule', 'DTSTART:' + dt(addDays(t, 1), '1930'), 'DTEND:' + dt(addDays(t, 1), '2100')]),
+    ev(['SUMMARY:Fußballtraining Ben', 'DTSTART:' + dt(addDays(ws, -28 + 1), '1700'), 'DTEND:' + dt(addDays(ws, -28 + 1), '1830'), 'RRULE:FREQ=WEEKLY;BYDAY=TU,TH']),
+    ev(['SUMMARY:Ausflug mit Oma', 'DTSTART;VALUE=DATE:' + dd(addDays(t, 5)), 'DTEND;VALUE=DATE:' + dd(addDays(t, 8))]),
+    ev(['SUMMARY:Familienessen', 'DTSTART:' + dt(addDays(ws, -14 + 6), '1230'), 'DTEND:' + dt(addDays(ws, -14 + 6), '1400'), 'RRULE:FREQ=MONTHLY;BYDAY=2SU']),
+    'END:VCALENDAR'].join('\r\n');
+}
+
+function calErrText(e, mode) {
+  if (e && e.name === 'TypeError') return mode === 'worker' ? 'Keine Verbindung zum Worker (Adresse prüfen)' : 'Keine Verbindung oder vom Browser blockiert (CORS). Besser den Worker nutzen.';
+  return (e && e.message) || 'Unbekannter Fehler';
+}
+
+/* Holt Termine. wantFrom/wantTo sind optional (lokale Tage), done(err) wird immer aufgerufen. */
+function calFetch(wantFrom, wantTo, done) {
+  var cfg = cal.cfg;
+  function finish(err) { cal.busy = false; calChanged(); if (done) done(err || null); }
+  if (cfg.mode === 'off') { if (done) done(null); return; }
+  if (cfg.mode === 'demo') {
+    cal.ics = [calDemoIcs()]; cal.cover = { from: '0000-01-01', to: '9999-12-31' }; cal.fetchedAt = Date.now(); cal.error = '';
+    calReparse(); finish(null); return;
+  }
+  if (!cfg.url) { cal.error = 'Keine Adresse eingetragen'; finish(new Error(cal.error)); return; }
+  var from = [wantFrom ? addDays(wantFrom, -31) : '9999', addDays(ui.today, -31), cal.cover ? cal.cover.from : '9999'].sort()[0];
+  var to = [wantTo ? addDays(wantTo, 31) : '0000', addDays(ui.today, 93), cal.cover ? cal.cover.to : '0000'].sort().reverse()[0];
+  var url, init = { method: 'GET', cache: 'no-store' };
+  if (cfg.mode === 'worker') {
+    url = cfg.url.replace(/\/+$/, '') + '/events?from=' + from + '&to=' + to;
+    init.headers = { Authorization: 'Bearer ' + cfg.token };
+  } else url = cfg.url.trim().replace(/^webcal:/i, 'https:');
+  cal.busy = true;
+  var settled = false;
+  var timer = setTimeout(function () { if (!settled) { settled = true; cal.error = 'Zeitüberschreitung'; finish(new Error(cal.error)); } }, 20000);
+  fetch(url, init).then(function (r) {
+    if (!r.ok) {
+      return r.text().then(function (t) {
+        var msg = '';
+        try { msg = JSON.parse(t).error; } catch (e) { /* kein JSON */ }
+        throw new Error(msg || ('HTTP ' + r.status));
+      });
+    }
+    return cfg.mode === 'worker' ? r.json() : r.text();
+  }).then(function (p) {
+    if (settled) return;
+    var ics, cover;
+    if (cfg.mode === 'worker') {
+      if (!p || !Array.isArray(p.ics)) throw new Error('Unerwartete Antwort vom Worker');
+      ics = p.ics; cover = { from: from, to: to };
+    } else {
+      if (String(p).indexOf('BEGIN:VCALENDAR') < 0) throw new Error('Die Adresse liefert keinen Kalender');
+      ics = [String(p)]; cover = { from: '0000-01-01', to: '9999-12-31' };
+    }
+    settled = true; clearTimeout(timer);
+    cal.ics = ics; cal.cover = cover; cal.fetchedAt = Date.now(); cal.error = '';
+    calReparse(); calSaveCache(); finish(null);
+  }).catch(function (e) {
+    if (settled) return;
+    settled = true; clearTimeout(timer);
+    cal.error = calErrText(e, cfg.mode);
+    finish(e);
+  });
+}
+function calEnsure(from, to, cb) {
+  if (cal.cfg.mode !== 'worker' || (cal.cover && cal.cover.from <= from && cal.cover.to >= to)) { if (cb) cb(); return; }
+  calFetch(from, to, cb);
+}
+function calStatusText() {
+  if (cal.cfg.mode === 'demo') return 'Demo: Beispieltermine';
+  if (cal.error) return 'Offline' + (cal.fetchedAt ? ' – Stand ' + hhmm(cal.fetchedAt) : '');
+  if (cal.fetchedAt) return 'Aktualisiert ' + hhmm(cal.fetchedAt);
+  return cal.busy ? 'Lade …' : '';
+}
+
+/* =====================================================================
+   Kalender: Anzeige (Tagesliste, großer Kalender, Termin)
+   ===================================================================== */
+var ICON_EXPAND = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function calEvRow(ev, date) {
+  var now = Date.now();
+  var past = date === ui.today && !ev.allDay && (ev.end > ev.start ? ev.end <= now : ev.start < now);
+  var cur = date === ui.today && !ev.allDay && ev.start <= now && now < ev.end;
+  return h('button', { class: 'cev' + (past ? ' past' : '') + (cur ? ' now' : ''), onclick: function () { openEventDetail(ev, date); } }, [
+    h('span', { class: 'ct' }, evTimeLabel(ev, date)),
+    h('span', { class: 'cx' }, [h('span', { class: 'cn' }, ev.title || '(ohne Titel)'), ev.location ? h('span', { class: 'cl' }, '📍 ' + ev.location) : null])
+  ]);
+}
+function calMaxBtn() {
+  var b = h('button', { class: 'calmax', 'aria-label': 'Kalender vergrößern', title: 'Kalender vergrößern', onclick: function () { openCalendar(); } });
+  b.innerHTML = ICON_EXPAND;
+  return b;
+}
+/* Füllt einen Container mit Titel, heutigen Terminen und Status. max: Anzahl sichtbarer Termine. */
+function calFillToday(el, max) {
+  el.innerHTML = '';
+  var evs = calOnDate(cal.raws, ui.today);
+  el.appendChild(h('div', { class: 'calhead' }, [
+    h('div', { class: 'caltitle' }, [h('b', null, '📅 Heute'), h('span', { class: 'caldate' }, DAYS_LONG[isoDay(ui.today) - 1] + ', ' + fmtDM(ui.today))]),
+    calMaxBtn()
+  ]));
+  var list = h('div', { class: 'callist' });
+  if (!evs.length) list.appendChild(h('div', { class: 'calempty' }, cal.busy && !cal.fetchedAt ? 'Lade Termine …' : 'Heute keine Termine'));
+  evs.slice(0, max).forEach(function (ev) { list.appendChild(calEvRow(ev, ui.today)); });
+  if (evs.length > max) list.appendChild(h('button', { class: 'cmorebtn', onclick: function () { openCalendar(); } }, '+ ' + (evs.length - max) + ' weitere'));
+  el.appendChild(list);
+  var st = calStatusText();
+  if (st) el.appendChild(h('div', { class: 'calfoot' + (cal.error ? ' err' : ''), title: cal.error || '' }, st));
+}
+function renderCalPanel() {
+  var el = $('calpanel');
+  if (!el) return;
+  if (!$('app').classList.contains('withpanel')) { el.innerHTML = ''; return; }
+  calFillToday(el, 999);
+}
+function calCard() {
+  var el = h('div', { class: 'calcard' });
+  calFillToday(el, 4);
+  return el;
+}
+/* Wird nach neuen Daten und jede Minute aufgerufen: aktualisiert nur den Kalenderbereich. */
+function calChanged() {
+  renderCalPanel();
+  var c = document.querySelector('.calcard');
+  if (c) calFillToday(c, 4);
+  cal.views.slice().forEach(function (fn) { fn(); });
+}
+
+/* --- Termin-Details und Tagesliste --- */
+function openEventDetail(ev, date) {
+  var m = openModal('small');
+  var parts = dialogParts(m, ev.title || '(ohne Titel)');
+  var when;
+  if (ev.allDay) {
+    var last = addDays(ev.endDate, -1);
+    when = DAYS[isoDay(ev.startDate) - 1] + ' ' + fmtDate(ev.startDate) + (last > ev.startDate ? ' – ' + DAYS[isoDay(last) - 1] + ' ' + fmtDate(last) : '') + ', ganztägig';
+  } else {
+    var ds = msToDate(ev.start), de = msToDate(ev.end);
+    when = DAYS[isoDay(ds) - 1] + ' ' + fmtDate(ds) + ', ' + hhmm(ev.start) +
+      (ev.end > ev.start ? (de === ds ? '–' + hhmm(ev.end) : ' – ' + DAYS[isoDay(de) - 1] + ' ' + fmtDate(de) + ', ' + hhmm(ev.end)) : '');
+  }
+  parts.body.appendChild(h('div', { class: 'evwhen' }, '🕒 ' + when));
+  if (ev.location) parts.body.appendChild(h('div', { class: 'evloc' }, '📍 ' + ev.location));
+  if (ev.description) parts.body.appendChild(h('div', { class: 'evdesc' }, ev.description));
+  parts.foot.appendChild(h('button', { class: 'btn', onclick: m.close }, 'Schließen'));
+}
+function openDayList(date) {
+  var m = openModal('small');
+  var parts = dialogParts(m, DAYS_LONG[isoDay(date) - 1] + ', ' + fmtDate(date));
+  var evs = calOnDate(cal.raws, date);
+  if (!evs.length) parts.body.appendChild(h('div', { class: 'calempty' }, 'Keine Termine'));
+  evs.forEach(function (ev) { parts.body.appendChild(calEvRow(ev, date)); });
+  parts.foot.appendChild(h('button', { class: 'btn', onclick: m.close }, 'Schließen'));
+}
+
+/* --- Großer Kalender mit Monats- und Wochenansicht --- */
+function weekRangeText(ws) {
+  var we = addDays(ws, 6), a = ws.split('-'), b = we.split('-');
+  if (a[1] === b[1]) return +a[2] + '.–' + +b[2] + '. ' + MON3[+b[1] - 1] + ' ' + b[0];
+  return +a[2] + '. ' + MON3[+a[1] - 1] + ' – ' + +b[2] + '. ' + MON3[+b[1] - 1] + ' ' + b[0];
+}
+function layoutLanes(items) {
+  var lanes = [], cluster = [], clusterEnd = 0, res = [];
+  function flush() { var n = lanes.length; cluster.forEach(function (c) { c.n = n; }); res = res.concat(cluster); lanes = []; cluster = []; }
+  items.forEach(function (it) {
+    if (cluster.length && it.s >= clusterEnd) flush();
+    var li = 0;
+    while (li < lanes.length && lanes[li] > it.s) li++;
+    lanes[li] = it.e; it.lane = li; cluster.push(it);
+    clusterEnd = Math.max(clusterEnd, it.e);
+  });
+  flush();
+  return res;
+}
+
+function openCalendar() {
+  var m = openModal('cal');
+  m.dlg.parentNode.style.padding = '0';
+  var st = { view: cal.cfg.view, anchor: ui.today, scroll: -1 };
+  var barEl = h('div', { class: 'calbar' }), bodyEl = h('div', { class: 'calbody' });
+  m.dlg.appendChild(barEl); m.dlg.appendChild(bodyEl);
+
+  function narrow() { return $('app').clientWidth < 700; }
+  function rangeOf() {
+    var p = st.anchor.split('-'), y = +p[0], mo = +p[1];
+    if (st.view === 'month') {
+      var first = ymd(y, mo, 1), last = ymd(y, mo, daysInMonth(y, mo));
+      return { from: weekStart(first), to: addDays(weekStart(last), 6) };
+    }
+    var ws = weekStart(st.anchor);
+    return { from: ws, to: addDays(ws, 6) };
+  }
+  function titleText() {
+    var p = st.anchor.split('-');
+    return st.view === 'month' ? MONTHS[+p[1] - 1] + ' ' + p[0] : 'KW ' + isoWeek(weekStart(st.anchor)) + ' · ' + weekRangeText(weekStart(st.anchor));
+  }
+  function move(dir) {
+    var p = st.anchor.split('-');
+    if (st.view === 'month') {
+      var mm0 = (+p[1] - 1) + dir, y = +p[0] + Math.floor(mm0 / 12), mo = ((mm0 % 12) + 12) % 12 + 1;
+      st.anchor = ymd(y, mo, 1);
+    } else st.anchor = addDays(st.anchor, dir * 7);
+    st.scroll = -1;
+    render();
+  }
+  function close() { var i = cal.views.indexOf(renderContent); if (i >= 0) cal.views.splice(i, 1); m.close(); }
+  function setView(v) { st.view = v; cal.cfg.view = v; calSaveCfg(); st.scroll = -1; render(); }
+
+  function buildBar() {
+    barEl.innerHTML = '';
+    appendKids(barEl, [
+      h('div', { class: 'calnav' }, [
+        h('button', { class: 'btn calprev', 'aria-label': 'Zurück', onclick: function () { move(-1); } }, '◀'),
+        h('button', { class: 'btn caltoday', onclick: function () { st.anchor = ui.today; st.scroll = -1; render(); } }, 'Heute'),
+        h('button', { class: 'btn calnext', 'aria-label': 'Weiter', onclick: function () { move(1); } }, '▶')
+      ]),
+      h('div', { class: 'caltitle2' }, titleText()),
+      h('div', { class: 'calseg' }, [
+        h('button', { class: 'segweek' + (st.view === 'week' ? ' on' : ''), onclick: function () { setView('week'); } }, 'Woche'),
+        h('button', { class: 'segmonth' + (st.view === 'month' ? ' on' : ''), onclick: function () { setView('month'); } }, 'Monat')
+      ]),
+      h('button', { class: 'calclose', 'aria-label': 'Schließen', onclick: close }, '✕')
+    ]);
+  }
+
+  function monthEl() {
+    var p = st.anchor.split('-'), y = +p[0], mo = +p[1], r = rangeOf();
+    var weeks = (diffDays(r.to, r.from) + 1) / 7, nar = narrow(), byDate = {};
+    calExpand(cal.raws, r.from, r.to).forEach(function (ev) {
+      calDatesOf(ev, r.from, r.to).forEach(function (d) { (byDate[d] = byDate[d] || []).push(ev); });
+    });
+    var grid = h('div', { class: 'cgrid', style: { 'grid-template-rows': 'repeat(' + weeks + ',minmax(0,1fr))' } });
+    for (var d = r.from; d <= r.to; d = addDays(d, 1)) {
+      (function (d) {
+        var evs = byDate[d] || [], inMonth = +d.slice(5, 7) === mo;
+        var cell = h('button', {
+          class: 'cday' + (inMonth ? '' : ' out') + (d === ui.today ? ' today' : ''), 'data-date': d,
+          'aria-label': DAYS_LONG[isoDay(d) - 1] + ' ' + fmtDate(d) + ', ' + evs.length + ' Termine', onclick: function () { openDayList(d); }
+        }, h('span', { class: 'cnum' }, String(+d.slice(8))));
+        if (nar) {
+          if (evs.length) cell.appendChild(h('span', { class: 'cdots' }, evs.slice(0, 6).map(function () { return h('i', { class: 'cdot' }); })));
+        } else {
+          var max = weeks > 5 ? 2 : 3;
+          evs.slice(0, max).forEach(function (ev) {
+            cell.appendChild(h('span', { class: 'cchip' + (ev.allDay ? ' all' : '') }, (ev.allDay ? '' : hhmm(ev.start) + ' ') + (ev.title || '(ohne Titel)')));
+          });
+          if (evs.length > max) cell.appendChild(h('span', { class: 'cmore' }, '+ ' + (evs.length - max) + ' weitere'));
+        }
+        grid.appendChild(cell);
+      })(d);
+    }
+    return h('div', { class: 'cmon' }, [h('div', { class: 'cwd' }, DAYS.map(function (x) { return h('div', null, x); })), grid]);
+  }
+
+  function weekAgendaEl() {
+    var r = rangeOf(), wrap = h('div', { class: 'agenda' });
+    for (var d = r.from; d <= r.to; d = addDays(d, 1)) {
+      var evs = calOnDate(cal.raws, d);
+      wrap.appendChild(h('div', { class: 'agd' + (d === ui.today ? ' today' : ''), 'data-date': d }, DAYS_LONG[isoDay(d) - 1] + ', ' + fmtDM(d) + (d === ui.today ? ' · heute' : '')));
+      if (!evs.length) wrap.appendChild(h('div', { class: 'agnone' }, '–'));
+      evs.forEach(function (ev) { wrap.appendChild(calEvRow(ev, d)); });
+    }
+    return wrap;
+  }
+
+  function weekGridEl() {
+    var r = rangeOf(), days = [], i;
+    for (i = 0; i < 7; i++) days.push(addDays(r.from, i));
+    var evs = calExpand(cal.raws, r.from, r.to);
+    var head = h('div', { class: 'wkhead' }, [h('div')].concat(days.map(function (d, di) {
+      return h('div', { class: 'whd' + (d === ui.today ? ' today' : ''), 'data-date': d }, [DAYS[di], h('b', null, String(+d.slice(8)))]);
+    })));
+    var allRow = h('div', { class: 'wkall' }, [h('div', { class: 'lbl2' }, 'ganztägig')].concat(days.map(function (d) {
+      return h('div', null, evs.filter(function (ev) { return ev.allDay && calDatesOf(ev, d, d).length; }).map(function (ev) {
+        return h('button', { class: 'cchip all', onclick: function () { openEventDetail(ev, d); } }, ev.title || '(ohne Titel)');
+      }));
+    })));
+    var hours = h('div', { class: 'wkhours' });
+    for (i = 0; i < 24; i++) hours.appendChild(h('div', null, i ? pad2(i) + ':00' : ''));
+    var cols = days.map(function (d) {
+      var dayStart = localMs(d), dayEnd = localMs(addDays(d, 1));
+      var items = evs.filter(function (ev) { return !ev.allDay && ev.start < dayEnd && Math.max(ev.end, ev.start + 1) > dayStart; }).map(function (ev) {
+        var s = Math.max(ev.start, dayStart), e = Math.min(Math.max(ev.end, ev.start + 30 * 60000), dayEnd);
+        return { ev: ev, s: s, e: e };
+      });
+      items.sort(function (a, b) { return a.s - b.s || b.e - a.e; });
+      var col = h('div', { class: 'wkcol' + (d === ui.today ? ' today' : ''), 'data-date': d });
+      layoutLanes(items).forEach(function (it) {
+        var top = (it.s - dayStart) / 3600000 * HOUR_H, hgt = Math.max(20, (it.e - it.s) / 3600000 * HOUR_H - 2);
+        col.appendChild(h('button', {
+          class: 'wev', style: { top: top + 'px', height: hgt + 'px', left: (100 * it.lane / it.n) + '%', width: 'calc(' + (100 / it.n) + '% - 2px)' },
+          onclick: function () { openEventDetail(it.ev, d); }
+        }, [h('b', null, it.ev.title || '(ohne Titel)'), h('span', null, hhmm(it.ev.start))]));
+      });
+      if (d === ui.today) col.appendChild(h('div', { class: 'nowline', style: { top: ((Date.now() - dayStart) / 3600000 * HOUR_H) + 'px' } }));
+      return col;
+    });
+    var scroller = h('div', { class: 'wkscroll' }, h('div', { class: 'wkgrid', style: { height: (24 * HOUR_H) + 'px' } }, [hours].concat(cols)));
+    return { top: [head, allRow], scroller: scroller };
+  }
+
+  function renderContent() {
+    var old = bodyEl.querySelector('.wkscroll, .agenda');
+    if (old) st.scroll = old.scrollTop;
+    bodyEl.innerHTML = '';
+    if (st.view === 'month') bodyEl.appendChild(monthEl());
+    else if (narrow()) {
+      var ag = weekAgendaEl();
+      bodyEl.appendChild(ag);
+      if (st.scroll >= 0) ag.scrollTop = st.scroll;
+    } else {
+      var w = weekGridEl();
+      appendKids(bodyEl, w.top);
+      bodyEl.appendChild(w.scroller);
+      var now = new Date();
+      w.scroller.scrollTop = st.scroll >= 0 ? st.scroll : Math.max(0, ((now.getHours() - 1) * HOUR_H));
+      if (st.scroll < 0 && !(rangeOf().from <= ui.today && ui.today <= rangeOf().to)) w.scroller.scrollTop = 7 * HOUR_H;
+    }
+    var stt = calStatusText();
+    if (cal.error) bodyEl.appendChild(h('div', { class: 'calfoot err' }, stt + ' – ' + cal.error));
+  }
+  function render() {
+    buildBar();
+    renderContent();
+    var r = rangeOf();
+    calEnsure(r.from, r.to, null);
+  }
+  cal.views.push(renderContent);
+  render();
+}
+
+/* --- Einstellungen: Kalender verbinden --- */
+function calSettingsSection(rebuild) {
+  if (!calDraft) calDraft = { mode: cal.cfg.mode, url: cal.cfg.url, token: cal.cfg.token };
+  var d = calDraft;
+  var msg = h('div', { class: 'calmsg' }, cal.cfg.mode === 'off' ? 'Kalender ist ausgeschaltet.' : calStatusText());
+  var modes = [['off', 'Aus'], ['demo', 'Demo'], ['ics', 'ICS-Adresse'], ['worker', 'iCloud (Worker)']];
+  var sec = h('div', { class: 'sec' }, [h('h3', null, 'Kalender (nur Anzeige)'),
+    h('div', { class: 'row' }, modes.map(function (mm) {
+      return h('button', { class: 'chip calmode' + (d.mode === mm[0] ? ' on' : ''), onclick: function () { d.mode = mm[0]; rebuild(); } }, mm[1]);
+    }))]);
+  if (d.mode === 'ics' || d.mode === 'worker') {
+    var urlInp = h('input', { class: 'inp calurl', type: 'url', value: d.url, placeholder: d.mode === 'worker' ? 'https://familienkalender.xxx.workers.dev' : 'https://…/kalender.ics', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
+      oninput: function () { d.url = urlInp.value; } });
+    sec.appendChild(h('label', { class: 'lbl' }, d.mode === 'worker' ? 'Adresse des Workers' : 'Adresse des Kalenders (https:// oder webcal://)'));
+    sec.appendChild(urlInp);
+    if (d.mode === 'worker') {
+      var tokInp = h('input', { class: 'inp caltoken', type: 'password', value: d.token, placeholder: 'Zugangscode (APP_TOKEN)', autocapitalize: 'off', autocorrect: 'off',
+        oninput: function () { d.token = tokInp.value; } });
+      sec.appendChild(h('label', { class: 'lbl' }, 'Zugangscode'));
+      sec.appendChild(tokInp);
+    }
+  }
+  sec.appendChild(h('div', { class: 'muted', style: { 'font-size': '14px', margin: '6px 0' } },
+    d.mode === 'demo' ? 'Zeigt Beispieltermine, um die Oberfläche auszuprobieren.' :
+    d.mode === 'ics' ? 'Direkter Abruf. Funktioniert nur, wenn der Anbieter das Laden von anderen Seiten erlaubt (CORS).' :
+    d.mode === 'worker' ? 'Der Worker liest den iCloud-Familienkalender und stellt ihn der App bereit. Einrichtung: docs/KALENDER.md' : ''));
+  sec.appendChild(h('button', { class: 'btn primary calsave', onclick: function () {
+    cal.cfg.mode = d.mode; cal.cfg.url = (d.url || '').trim(); cal.cfg.token = (d.token || '').trim();
+    calSaveCfg(); calClearCache();
+    cal.ics = []; cal.raws = []; cal.cover = null; cal.fetchedAt = 0; cal.error = '';
+    renderAll();
+    if (cal.cfg.mode === 'off') { msg.textContent = 'Kalender ist ausgeschaltet.'; return; }
+    msg.textContent = 'Verbinde …';
+    calFetch(null, null, function (err) {
+      var n = calExpand(cal.raws, ui.today, addDays(ui.today, 60)).length;
+      msg.textContent = err ? 'Fehler: ' + cal.error : 'Verbunden: ' + n + ' Termine in den nächsten 60 Tagen.';
+    });
+  } }, 'Speichern und verbinden'));
+  sec.appendChild(msg);
+  return sec;
+}
+
+function calInit() { calLoadCfg(); calLoadCache(); }
+function calStart() {
+  if (cal.cfg.mode !== 'off') calFetch(null, null);
+  setInterval(function () { if (cal.cfg.mode === 'worker' || cal.cfg.mode === 'ics') calFetch(null, null); }, 600000);
+  setInterval(function () { if (cal.cfg.mode !== 'off') calChanged(); }, 60000);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && (cal.cfg.mode === 'worker' || cal.cfg.mode === 'ics') && Date.now() - cal.fetchedAt > 120000) calFetch(null, null);
+  });
+}
+
+/* =====================================================================
    Start & Takt
    ===================================================================== */
 function renderAll() { renderTabs(); renderWeekNav(); renderBoard(); renderLock(); renderBanner(); }
@@ -1789,6 +2630,7 @@ function renderAll() { renderTabs(); renderWeekNav(); renderBoard(); renderLock(
 $('prevw').addEventListener('click', function () { var sd = curSelDay(currentWeekDates()); ui.weekOffset--; ui.selDay = addDays(sd, -7); renderWeekNav(); renderBoard(); });
 $('nextw').addEventListener('click', function () { var sd = curSelDay(currentWeekDates()); ui.weekOffset++; ui.selDay = addDays(sd, 7); renderWeekNav(); renderBoard(); });
 $('todayw').addEventListener('click', function () { ui.weekOffset = 0; ui.selDay = ui.today; renderWeekNav(); renderBoard(); });
+$('calbtn').addEventListener('click', function () { openCalendar(); });
 $('gear').addEventListener('click', function () { requirePin(openSettings, 'Einstellungen'); });
 
 var resizeTimer = null;
@@ -1806,7 +2648,9 @@ setInterval(function () {
 
 function start(loaded) {
   data = loaded || emptyData();
+  calInit();
   renderAll();
+  calStart();
   if (!data.settings.pinHash) firstRun();
   else if (!data.profiles.length) renderBoard();
 }
@@ -1827,7 +2671,8 @@ function start(loaded) {
 
 /* Für automatisierte Tests */
 window.__hp = { sha256: sha256, isDue: isDue, isoDay: isoDay, isoWeek: isoWeek, diffDays: diffDays, parseMoney: parseMoney,
-  schedText: schedText, normalize: normalize, getData: function () { return data; }, balance: balance };
+  schedText: schedText, normalize: normalize, getData: function () { return data; }, balance: balance,
+  cal: { parse: icsParseEvents, expand: calExpand, rrule: rruleDates, rruleParse: rruleParse, zonedToUtc: zonedToUtc, state: cal, refresh: function (cb) { calFetch(null, null, cb); } } };
 })();
 </script>
 </body>

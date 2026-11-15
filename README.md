@@ -33,6 +33,13 @@ Zielgerät: Amazon Fire HD 8 im Querformat mit Fully Kiosk Browser.
 2. Teilen → **Zum Home-Bildschirm**. Das Symbol kommt aus `apple-touch-icon.png`.
 3. Die App von dort starten, damit Safari die Daten zuverlässig behält. Regelmäßig ein Backup exportieren.
 
+## Familienkalender
+
+Optional zeigt das Dashboard den iCloud-Familienkalender: heutige Termine rechts am Bildschirm, per Vergrößern-Knopf
+ein großer Kalender mit Monats- und Wochenansicht. Ein kleiner Worker (`worker/worker.mjs`, Cloudflare, kostenlos)
+liest iCloud nur lesend. Einrichtung und Fehlersuche: [`docs/KALENDER.md`](docs/KALENDER.md).
+Ohne Einrichtung bleibt alles wie bisher, im Modus **Demo** lassen sich Beispieltermine ansehen.
+
 ## Standardaufgaben
 
 Aufgaben werden nur als Symbol angezeigt, Name und Details stehen in der Aufgabenmaske (Symbol antippen).
@@ -63,7 +70,7 @@ Zeitpläne und Beträge sind Vorschläge und lassen sich je Aufgabe und Profil �
 
 ## Tests
 
-Die Abnahmetests in `tests/app.test.js` halten die Anforderungen aus dem Konzept fest und laufen in beiden Layouts
+Die Abnahmetests (`tests/app.test.js`, `tests/calendar.test.js`, `tests/worker.test.js`) halten die Anforderungen aus dem Konzept fest und laufen in beiden Layouts
 (Smartphone-Hochformat und Tablet-Raster) mit eingefrorener Uhr (Mittwoch, 18.11.2026):
 
 - Sperre: heute frei, Vortage nur mit PIN (auch Zurücknehmen), Zukunft immer gesperrt, 2-Minuten-Entsperrung läuft ab
@@ -71,6 +78,8 @@ Die Abnahmetests in `tests/app.test.js` halten die Anforderungen aus dem Konzept
 - Zeitpläne (Wochentage, Intervall ab Startdatum, Sommerzeit), Zellzustände, Zuordnung je Profil
 - Aufgabenmaske (Lesemodus, Bearbeiten nur mit PIN, Validierung, Löschen), Auszahlung, Einstellungen, Backup
 - Beträge als Momentaufnahme, Saldo, nur Symbole statt Namen, Fallback-Icon, Pinnen, Wochennavigation
+- Kalender: ICS-Auswertung mit Zeitzonen und Wiederholungen, Heute-Liste, Monats-/Wochenansicht, Offline-Zwischenspeicher, Einstellungen
+- Worker: Zugangscode, CORS, iCloud-Ablauf gegen einen nachgebauten Server, Fehlermeldungen
 
 ```bash
 npm install

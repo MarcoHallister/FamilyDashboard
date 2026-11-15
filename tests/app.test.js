@@ -68,7 +68,8 @@ async function open(layout, data) {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.clock.install({ time: new Date(NOW) });
   if (data) {
-    await page.addInitScript(([k, v]) => { if (!localStorage.getItem(k)) localStorage.setItem(k, v); }, [KEY, JSON.stringify(data)]);
+    /* Nur beim ersten Laden vorbelegen: bei einem Neuladen dürfen gespeicherte Daten nicht überschrieben werden */
+    await page.addInitScript(([k, v]) => { if (window.name !== '__seeded') { localStorage.setItem(k, v); window.name = '__seeded'; } }, [KEY, JSON.stringify(data)]);
   }
   await page.goto(APP_URL);
   await page.clock.resume();
@@ -107,6 +108,12 @@ async function unlockViaPastCell(h) {
   assert.ok(await padVisible(h), 'PIN-Feld erwartet');
   await enterPin(h);
   await settleTick(h);
+}
+/* Der Browser schreibt den lokalen Speicher mit kurzer Verzögerung; ohne Pause kann ein Neuladen Daten verlieren. */
+async function reload(h) {
+  await h.page.waitForTimeout(600);
+  await h.page.reload();
+  await h.page.waitForFunction(() => window.__hp && window.__hp.getData());
 }
 const isActive = async (loc) => (await loc.count()) > 0 && !(await loc.first().isDisabled());
 const isDoneCell = (loc) => loc.evaluate((el) => (el.closest('.c, .mrow') || el).classList.contains('done'));
@@ -182,8 +189,7 @@ describe('Erststart und Speicherung', () => {
       const h = await start(layout);
       await (await cell(h, 't1', 'pa', TODAY)).click();
       assert.deepEqual(await completions(h), ['pa|t1|' + TODAY]);
-      await h.page.reload();
-      await h.page.waitForFunction(() => window.__hp && window.__hp.getData());
+      await reload(h);
       assert.deepEqual(await completions(h), ['pa|t1|' + TODAY]);
     });
   }
@@ -260,8 +266,7 @@ for (const layout of Object.keys(LAYOUTS)) {
     test('Entsperrung gilt nicht nach Neuladen', async () => {
       const h = await start(layout);
       await unlockViaPastCell(h);
-      await h.page.reload();
-      await h.page.waitForFunction(() => window.__hp && window.__hp.getData());
+      await reload(h);
       await (await cell(h, 't1', 'pb', PAST)).click();
       assert.ok(await padVisible(h), 'nach dem Neuladen muss wieder gesperrt sein');
     });

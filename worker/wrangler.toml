@@ -1,0 +1,9 @@
+name = "familienkalender"
+main = "worker.mjs"
+compatibility_date = "2024-11-01"
+
+# Geheime Werte NICHT hier eintragen, sondern mit:
+#   npx wrangler secret put APP_TOKEN
+#   npx wrangler secret put APPLE_ID
+#   npx wrangler secret put APPLE_APP_PASSWORD
+#   npx wrangler secret put CALENDAR_NAME     (optional, z. B. Familie)
