@@ -33,6 +33,14 @@ Zielgerät: Amazon Fire HD 8 im Querformat mit Fully Kiosk Browser.
 2. Teilen → **Zum Home-Bildschirm**. Das Symbol kommt aus `apple-touch-icon.png`.
 3. Die App von dort starten, damit Safari die Daten zuverlässig behält. Regelmäßig ein Backup exportieren.
 
+## Standardaufgaben
+
+Aufgaben werden nur als Symbol angezeigt, Name und Details stehen in der Aufgabenmaske (Symbol antippen).
+Beim Einrichten (oder über ⚙️ → *Standardaufgaben ergänzen*, fehlende werden ergänzt, vorhandene bleiben unverändert):
+🧼 Spülmaschine · 🌀 Staubsaugen · 🧺 Waschmaschine · ♨️ Trockner · 🧹 Zimmer aufräumen · 🐰 Hase füttern ·
+🦷 Zähne putzen · 💇 Haare kämmen · 📚 Hausaufgaben · 🎒 Schultasche packen · 🍽️ Tisch decken · 🧽 Tisch abwischen.
+Zeitpläne und Beträge sind Vorschläge und lassen sich je Aufgabe und Profil ändern.
+
 ## Funktionsumfang
 
 | Konzept | Umsetzung |

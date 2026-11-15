@@ -271,6 +271,17 @@ textarea.inp{font-size:16px}
   .pcards{grid-template-columns:1fr}
   #toast{bottom:calc(40px + env(safe-area-inset-bottom))}
 }
+
+/* ---------- Nur Symbole (ohne Aufgabennamen) ---------- */
+.tcell{justify-content:center;padding:4px}
+.tcell .ticon.emo,.tcell .ticon.ini{width:48px;height:48px}
+.tcell .ticon.emo{font-size:34px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));grid-gap:2px 0;padding:6px 8px 10px;border-top:1px solid var(--line)}
+.mrow{flex-direction:column;border-top:0;padding:4px 0;min-height:0}
+.minfo{width:100%;justify-content:center;min-height:60px;padding:0}
+.minfo .ticon.emo,.minfo .ticon.ini{width:54px;height:54px}
+.minfo .ticon.emo{font-size:40px}
+.mcheck{width:100%;height:56px}
 </style>
 </head>
 <body>
@@ -313,7 +324,7 @@ var DAYS_LONG = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Sam
 var COLORS = ['#e4572e', '#2f6fde', '#2e9b57', '#9b51e0', '#f08a24', '#d63384', '#1597a8', '#6b7280'];
 var EMOJI = ['🧹', '🍽️', '🗑️', '🛏️', '👕', '🧺', '🧦', '🌱', '🐶', '🐱', '🐟', '📚',
              '✏️', '🎒', '🦷', '🛁', '🚿', '🧽', '🥕', '🍎', '🚲', '🧸', '🎹', '⚽',
-             '📦', '🛒', '💤', '⭐', '🚪', '🪥'];
+             '📦', '🛒', '💤', '⭐', '🚪', '🧼', '🌀', '♨️', '🍴', '🐰', '💇', '🧴'];
 
 /* =====================================================================
    Hilfsfunktionen: Datum (reines Datum, gerechnet in UTC-Mitternacht)
@@ -888,8 +899,7 @@ function layoutVars(nProfiles) {
   var board = $('board');
   var W = board.clientWidth - 12;
   var n = Math.max(1, nProfiles * 7);
-  var taskW = W < 760 ? 150 : 190;
-  if ((W - taskW) / n < 34) taskW = 116;
+  var taskW = 68;
   var colW = (W - taskW) / n;
   board.style.setProperty('--task-w', taskW + 'px');
   board.style.setProperty('--box', Math.max(22, Math.min(42, Math.floor(colW - 8))) + 'px');
@@ -930,7 +940,7 @@ function renderBoard() {
   foot.style.gridTemplateColumns = 'var(--task-w) repeat(' + profs.length + ', minmax(0,1fr))';
 
   /* Kopf: Profilnamen + Tagesspalten */
-  head.appendChild(h('div', { class: 'th', style: { 'grid-column': '1' } }, 'Aufgaben'));
+  head.appendChild(h('div', { class: 'th', style: { 'grid-column': '1' } }, ''));
   profs.forEach(function (p, pi) {
     head.appendChild(h('div', { class: 'ph', style: { 'grid-column': (2 + pi * 7) + ' / span 7', color: p.color } },
       [avatarEl(p), h('span', { class: 'nm' }, p.name)]));
@@ -951,8 +961,8 @@ function renderBoard() {
     if (!r.shared) firstSpecDone = true;
     var sub = r.orphan ? 'nicht zugeordnet' : fmtMoney(cents(t.value));
     body.appendChild(h('button', {
-      class: 'tcell' + (spec ? ' row-first-spec' : ''), 'data-task': t.id, 'aria-label': 'Aufgabe ' + t.title + ' öffnen'
-    }, [taskIcon(t.icon, t.title), h('span', { class: 'tx' }, [h('span', { class: 'tt' }, t.title), h('span', { class: 'tv' }, sub)])]));
+      class: 'tcell' + (spec ? ' row-first-spec' : ''), 'data-task': t.id, title: t.title, 'aria-label': 'Aufgabe ' + t.title + ' öffnen'
+    }, taskIcon(t.icon, t.title)));
     profs.forEach(function (p, pi) {
       var a = r.assigned[pi];
       dates.forEach(function (d, di) {
@@ -969,7 +979,7 @@ function renderBoard() {
   if (!rows.length) {
     extra.appendChild(h('div', { class: 'empty' }, [
       h('div', null, data.tasks.length ? 'Für diese Ansicht sind keine Aufgaben zugeordnet.' : 'Noch keine Aufgaben angelegt.'),
-      !data.tasks.length ? h('button', { class: 'btn', onclick: function () { requirePin(createSampleTasks); } }, 'Beispielaufgaben anlegen') : null
+      !data.tasks.length ? h('button', { class: 'btn', onclick: function () { requirePin(createSampleTasks); } }, 'Standardaufgaben anlegen') : null
     ]));
   }
   extra.appendChild(h('button', { class: 'addrow', style: { width: 'calc(var(--task-w) - 8px)' }, onclick: function () { requirePin(function () { openTaskMask(null); }); } }, '+ Neue Aufgabe'));
@@ -1039,18 +1049,17 @@ function renderMobile(profs, dates) {
       h('div', { class: 'mhead' }, [avatarEl(p), h('div', { class: 'mname' }, p.name), h('div', { class: 'mprog' }, due ? done + ' von ' + due : '–')]),
       due ? h('div', { class: 'mbar' }, h('i', { style: { width: Math.round(100 * done / due) + '%' } })) : null
     ]);
+    var tiles = h('div', { class: 'mgrid' });
     items.forEach(function (it) {
       var t = it.t, info = it.info;
       var cls = 'mrow' + (info.done ? ' done' : ' open') + (info.rel === 'future' ? ' fut' : '') + (info.rel === 'past' && !isUnlocked() ? ' lock' : '');
-      card.appendChild(h('div', { class: cls }, [
-        h('button', { class: 'minfo', 'data-task': t.id, 'aria-label': 'Aufgabe ' + t.title + ' öffnen' }, [
-          taskIcon(t.icon, t.title),
-          h('span', { class: 'tx' }, [h('span', { class: 'tt' }, t.title), h('span', { class: 'tv' }, fmtMoney(valueFor(t, it.a)))])
-        ]),
+      tiles.appendChild(h('div', { class: cls }, [
+        h('button', { class: 'minfo', 'data-task': t.id, title: t.title, 'aria-label': 'Aufgabe ' + t.title + ' öffnen' }, taskIcon(t.icon, t.title)),
         h('button', { class: 'mcheck', 'data-t': t.id, 'data-p': p.id, 'data-d': sel, 'aria-label': t.title + (info.done ? ', erledigt' : ', offen') },
           h('span', { class: 'box' }, info.done ? '✓' : ''))
       ]));
     });
+    if (items.length) card.appendChild(tiles);
     if (!items.length) card.appendChild(h('div', { class: 'mempty' }, data.tasks.length ? 'Nichts geplant 🎈' : 'Noch keine Aufgaben angelegt.'));
     var pg = piggies[p.id];
     if (!pg) pg = piggies[p.id] = makePiggy(p);
@@ -1060,7 +1069,7 @@ function renderMobile(profs, dates) {
   });
 
   if (!data.tasks.length) {
-    extra.appendChild(h('div', { class: 'mactions' }, h('button', { class: 'btn', onclick: function () { requirePin(createSampleTasks); } }, 'Beispielaufgaben anlegen')));
+    extra.appendChild(h('div', { class: 'mactions' }, h('button', { class: 'btn', onclick: function () { requirePin(createSampleTasks); } }, 'Standardaufgaben anlegen')));
   }
   extra.appendChild(h('div', { class: 'mactions' }, [
     h('button', { class: 'btn', onclick: openTaskList }, 'Alle Aufgaben'),
@@ -1588,6 +1597,7 @@ function openSettings() {
       ]));
     });
     ts.appendChild(h('div', { class: 'muted', style: { 'font-size': '14px', 'margin-top': '4px' } }, 'Aufgaben selbst und ihre Zeitpläne werden über die Aufgabenmaske gepflegt (Aufgabe im Dashboard antippen).'));
+    ts.appendChild(h('button', { class: 'btn', style: { 'margin-top': '8px' }, onclick: function () { createSampleTasks(); build(); } }, 'Standardaufgaben ergänzen'));
     b.appendChild(ts);
 
     /* Sparschwein */
@@ -1695,24 +1705,37 @@ function importJson(text, after) {
    ===================================================================== */
 function createSampleTasks() {
   var all = data.profiles.map(function (p) { return p.id; });
+  var DAILY = [1, 2, 3, 4, 5, 6, 7], SCHOOL = [1, 2, 3, 4, 5];
   var samples = [
-    { title: 'Zimmer aufräumen', icon: '🧹', value: 0.5, sch: { type: 'weekdays', days: [1, 3, 5] } },
-    { title: 'Tisch decken', icon: '🍽️', value: 0.2, sch: { type: 'weekdays', days: [1, 2, 3, 4, 5, 6, 7] } },
-    { title: 'Müll rausbringen', icon: '🗑️', value: 0.3, sch: { type: 'interval', everyDays: 2, start: ui.today } },
-    { title: 'Hausaufgaben', icon: '📚', value: 0.2, sch: { type: 'weekdays', days: [1, 2, 3, 4, 5] } },
-    { title: 'Pflanzen gießen', icon: '', value: 0.3, sch: { type: 'interval', everyDays: 7, start: weekStart(ui.today) } }
+    { title: 'Spülmaschine', icon: '🧼', value: 0.3, days: DAILY },
+    { title: 'Staubsaugen', icon: '🌀', value: 0.5, days: [6] },
+    { title: 'Waschmaschine', icon: '🧺', value: 0.3, days: [2, 5] },
+    { title: 'Trockner', icon: '♨️', value: 0.3, days: [2, 5] },
+    { title: 'Zimmer aufräumen', icon: '🧹', value: 0.5, days: [1, 3, 5] },
+    { title: 'Hase füttern', icon: '🐰', value: 0.2, days: DAILY },
+    { title: 'Zähne putzen', icon: '🦷', value: 0.1, days: DAILY },
+    { title: 'Haare kämmen', icon: '💇', value: 0.1, days: DAILY },
+    { title: 'Hausaufgaben', icon: '📚', value: 0.2, days: SCHOOL },
+    { title: 'Schultasche packen', icon: '🎒', value: 0.1, days: [1, 2, 3, 4, 7] },
+    { title: 'Tisch decken', icon: '🍽️', value: 0.2, days: DAILY },
+    { title: 'Tisch abwischen', icon: '🧽', value: 0.2, days: DAILY }
   ];
+  var have = {};
+  data.tasks.forEach(function (t) { have[t.title.trim().toLowerCase()] = 1; });
+  var added = 0;
   samples.forEach(function (s) {
+    if (have[s.title.toLowerCase()]) return;
     var t = { id: uid('t'), title: s.title, icon: s.icon, value: s.value, order: nextOrder() };
     data.tasks.push(t);
     all.forEach(function (pid) {
       data.assignments.push({ id: uid('a'), taskId: t.id, profileId: pid, valueOverride: null,
-        schedule: JSON.parse(JSON.stringify(s.sch)) });
+        schedule: { type: 'weekdays', days: s.days.slice() } });
     });
+    added++;
   });
   save();
   renderBoard();
-  toast('Beispielaufgaben angelegt');
+  toast(added ? added + ' Standardaufgaben ergänzt' : 'Alle Standardaufgaben sind schon vorhanden');
 }
 
 function firstRun() {
@@ -1730,7 +1753,7 @@ function setupProfiles() {
   var parts = dialogParts(m, 'Wer macht mit?');
   var inputs = [0, 1, 2, 3].map(function (i) { return h('input', { class: 'inp', placeholder: i === 0 ? 'Name, z. B. Anna' : 'weiterer Name (optional)', maxlength: '24' }); });
   var sample = true;
-  var sw = h('button', { class: 'switch on', onclick: function () { sample = !sample; sw.className = 'switch' + (sample ? ' on' : ''); } }, [h('i'), 'Beispielaufgaben anlegen']);
+  var sw = h('button', { class: 'switch on', onclick: function () { sample = !sample; sw.className = 'switch' + (sample ? ' on' : ''); } }, [h('i'), 'Standardaufgaben anlegen']);
   var err = h('div', { class: 'pinmsg', style: { 'text-align': 'left' } });
   appendKids(parts.body, [h('div', { class: 'muted' }, 'Ein Profil je Person. Später unter ⚙️ änderbar.'),
     inputs.map(function (x) { return h('div', { style: { margin: '6px 0' } }, x); }), sw, err]);
