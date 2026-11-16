@@ -37,6 +37,14 @@ appleid.apple.com → Anmelden und Sicherheit → **App-spezifische Passwörter*
 
 Die Adresse des Workers steht oben, z. B. `https://familienkalender.deinname.workers.dev`.
 
+#### Variante: Worker direkt aus GitHub bereitstellen (ohne Kopieren und Einfügen)
+Praktisch, wenn der Code-Editor von Cloudflare am Handy nicht mitspielt.
+1. Workers & Pages → **Create** → **Connect GitHub** → Cloudflare für dein Konto freigeben und das Repo `FamilyDashboard` wählen.
+2. Projektname `familienkalender`, **Root directory** `/worker`, Build-Befehl leer lassen, Deploy-Befehl `npx wrangler deploy` (Standard).
+3. Nach dem ersten Lauf unter **Settings → Variables and Secrets** die Secrets aus der Tabelle oben anlegen.
+
+Zukünftige Änderungen am Worker kommen dann automatisch mit jedem Push auf den Hauptzweig. Die Secrets bleiben erhalten.
+
 ### 3. Im Dashboard verbinden
 ⚙️ Einstellungen (PIN) → **Kalender (nur Anzeige)** → **iCloud (Worker)** → Adresse des Workers und Zugangscode (`APP_TOKEN`) eintragen → **Speichern und verbinden**.
 Die App meldet „Verbunden: N Termine“ oder einen Fehler im Klartext.

@@ -1,6 +1,8 @@
 name = "familienkalender"
 main = "worker.mjs"
 compatibility_date = "2024-11-01"
+# Im Dashboard gesetzte Werte bei jedem Deploy behalten
+keep_vars = true
 
 # Geheime Werte NICHT hier eintragen, sondern mit:
 #   npx wrangler secret put APP_TOKEN
