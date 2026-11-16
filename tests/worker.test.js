@@ -9,7 +9,7 @@ const http = require('node:http');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-let worker, server, base, requests, authOk;
+let worker, server, base, requests, authOk, homeMode = 'normal';
 const APPLE_ID = 'familie@example.com', APPLE_PW = 'abcd-efgh-ijkl-mnop', TOKEN = 'geheim-123';
 
 const ICS_A = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:a1\r\nSUMMARY:Zahnarzt & Co\r\nDTSTART:20261118T140000Z\r\nDTEND:20261118T150000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
@@ -34,6 +34,13 @@ before(async () => {
     if (req.method === 'PROPFIND' && req.url === '/123/principal/') {
       return res.end(multistatus('<response><href>/123/principal/</href><propstat><prop><C:calendar-home-set><href>' + host + '/123/calendars/</href></C:calendar-home-set></prop></propstat></response>'));
     }
+    if (req.method === 'PROPFIND' && req.url === '/123/calendars/' && homeMode === 'empty') {
+      return res.end(multistatus('<response><href>/123/calendars/</href><propstat><prop><resourcetype><collection/></resourcetype></prop></propstat></response>'));
+    }
+    if (req.method === 'PROPFIND' && req.url === '/123/calendars/' && homeMode === 'noname') {
+      return res.end(multistatus('<D:response xmlns:D="DAV:"><D:href>/123/calendars/fam-uuid-1/</D:href><D:propstat><D:prop><D:resourcetype><D:collection/><C:calendar xmlns:C="urn:ietf:params:xml:ns:caldav"/></D:resourcetype></D:prop></D:propstat></D:response>'));
+    }
+    if (req.method === 'REPORT' && req.url === '/123/calendars/fam-uuid-1/') return res.end(multistatus('<response><href>/x.ics</href><propstat><prop><C:calendar-data>' + esc(ICS_A) + '</C:calendar-data></prop></propstat></response>'));
     if (req.method === 'PROPFIND' && req.url === '/123/calendars/') {
       const cal = (href, name, comps) => '<response><href>' + href + '</href><propstat><prop><displayname>' + name + '</displayname><resourcetype><collection/><C:calendar xmlns:C="urn:ietf:params:xml:ns:caldav"/></resourcetype><C:supported-calendar-component-set>' + comps.map((c) => '<C:comp name="' + c + '"/>').join('') + '</C:supported-calendar-component-set></prop></propstat></response>';
       return res.end(multistatus(
@@ -52,7 +59,7 @@ before(async () => {
   base = 'http://127.0.0.1:' + server.address().port;
 });
 after(() => server.close());
-beforeEach(() => { requests = []; authOk = true; });
+beforeEach(() => { requests = []; authOk = true; homeMode = 'normal'; });
 
 const env = (extra) => Object.assign({ APP_TOKEN: TOKEN, APPLE_ID, APPLE_APP_PASSWORD: APPLE_PW, CALDAV_BASE: base }, extra || {});
 async function get(pathAndQuery, e, headers, method) {
@@ -157,6 +164,39 @@ describe('CalDAV (iCloud)', () => {
     const r = await get('/events', { APP_TOKEN: TOKEN });
     assert.equal(r.status, 500);
     assert.match((await r.json()).error, /ICS_URL|APPLE_ID/);
+  });
+});
+
+describe('CalDAV: Antworten, die anders aussehen als erwartet', () => {
+  test('keine Kalender gefunden: 404 mit Diagnose (Schritte, Status, Ausschnitt), Zugangsdaten nicht enthalten', async () => {
+    await clearCache(); homeMode = 'empty';
+    const r = await get('/events', env({ CALENDAR_NAME: 'Family' }));
+    assert.equal(r.status, 404);
+    const j = await r.json();
+    assert.match(j.error, /Kalender "Family" nicht gefunden\. Vorhanden: keine\./);
+    assert.match(j.error, /Diagnose: PROPFIND \/ \(Depth 0\) → 207/);
+    assert.match(j.error, /PROPFIND \/123\/calendars\/ \(Depth 1\) → 207/);
+    assert.deepEqual(j.available, []);
+    assert.ok(j.debug.length >= 4, 'Ablauf samt zweitem Versuch ist enthalten');
+    const txt = JSON.stringify(j);
+    assert.ok(!txt.includes(APPLE_PW) && !txt.includes(APPLE_ID), 'keine Zugangsdaten in der Diagnose');
+  });
+  test('zweiter Versuch mit weniger Eigenschaften wird unternommen', async () => {
+    await clearCache(); homeMode = 'empty';
+    await get('/events', env());
+    const lists = requests.filter((q) => q.url === '/123/calendars/');
+    assert.equal(lists.length, 2);
+    assert.ok(lists[0].body.includes('supported-calendar-component-set') && !lists[1].body.includes('supported-calendar-component-set'));
+  });
+  test('Kalender ohne Anzeigenamen: Name wird aus der Adresse abgeleitet', async () => {
+    await clearCache(); homeMode = 'noname';
+    const j = await (await get('/events', env({ CALENDAR_NAME: 'fam-uuid-1' }))).json();
+    assert.equal(j.calendar, 'fam-uuid-1');
+    assert.equal(j.ics.length, 1);
+  });
+  test('Kennnummern (ab 6 Ziffern) und E-Mail-Adressen werden in der Diagnose maskiert', async () => {
+    const m = await import(pathToFileURL(path.join(__dirname, '..', 'worker', 'worker.mjs')).href);
+    assert.equal(m._test.mask('/1234567890/principal/ max@example.com'), '/#/principal/ <mail>');
   });
 });
 

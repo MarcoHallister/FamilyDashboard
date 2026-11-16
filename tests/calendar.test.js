@@ -72,6 +72,7 @@ async function open(opts) {
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
     calls.push({ url: req.url(), auth: req.headers().authorization });
     if (state.mode === 'offline') return route.abort('failed');
+    if (state.mode === 'raw404') return route.fulfill({ status: 404, headers: Object.assign({ 'content-type': 'text/plain' }, cors), body: 'Not found' });
     if (state.mode === 'error') return route.fulfill({ status: state.status, headers: Object.assign({ 'content-type': 'application/json' }, cors), body: JSON.stringify({ error: state.error }) });
     return route.fulfill({ status: 200, headers: Object.assign({ 'content-type': 'application/json' }, cors), body: JSON.stringify({ calendar: 'Familie', ics: state.ics }) });
   });
@@ -522,6 +523,39 @@ describe('Verbindung, Zwischenspeicher, Fehler', () => {
   });
 });
 
+describe('Adresse des Workers', () => {
+  test('wird tolerant behandelt: https:// ergänzt, /health und Schrägstrich entfernt', async () => {
+    const h = await open({ layout: 'wide', cfg: null });
+    const r = await h.page.evaluate(() => ['familydashboard.yokusuna.workers.dev', ' https://x.workers.dev/ ', 'https://x.workers.dev/health', 'https://x.workers.dev/events?from=1&to=2', 'HTTPS://X.workers.dev//', ''].map((u) => window.__hp.cal.normUrl(u, true)));
+    assert.deepEqual(r, ['https://familydashboard.yokusuna.workers.dev', 'https://x.workers.dev', 'https://x.workers.dev', 'https://x.workers.dev', 'HTTPS://X.workers.dev', '']);
+    assert.equal(await h.page.evaluate(() => window.__hp.cal.normUrl('webcal://x.de/kal.ics', false)), 'https://x.de/kal.ics');
+  });
+  test('Eingabe ohne https:// verbindet trotzdem, gespeichert wird die bereinigte Adresse', async () => {
+    const h = await open({ layout: 'wide', cfg: null });
+    await h.page.locator('#gear').click(); await pin(h.page);
+    await h.page.locator('.calmode', { hasText: 'iCloud' }).click();
+    await h.page.locator('.calurl').fill('cal.test/health');
+    await h.page.locator('.caltoken').fill('geheim');
+    await h.page.locator('.calsave').click();
+    await h.page.waitForFunction(() => /Verbunden|Fehler/.test(document.querySelector('.calmsg').textContent));
+    assert.match(await h.page.locator('.calmsg').innerText(), /Verbunden/);
+    assert.equal(new URL(h.calls[h.calls.length - 1].url).origin + new URL(h.calls[h.calls.length - 1].url).pathname, 'https://cal.test/events');
+    assert.equal(await h.page.locator('.calurl').inputValue(), 'https://cal.test');
+    assert.equal((await h.page.evaluate((k) => JSON.parse(localStorage.getItem(k)), CAL_KEY)).url, 'https://cal.test');
+  });
+  test('404 ohne Meldung vom Worker: verständlicher Hinweis zur Adresse', async () => {
+    const h = await open({ layout: 'wide', cfg: null });
+    h.state.mode = 'raw404';
+    await h.page.locator('#gear').click(); await pin(h.page);
+    await h.page.locator('.calmode', { hasText: 'iCloud' }).click();
+    await h.page.locator('.calurl').fill('https://cal.test');
+    await h.page.locator('.caltoken').fill('x');
+    await h.page.locator('.calsave').click();
+    await h.page.waitForFunction(() => /Verbunden|Fehler/.test(document.querySelector('.calmsg').textContent));
+    assert.match(await h.page.locator('.calmsg').innerText(), /Adresse nicht gefunden.*https:\/\//);
+  });
+});
+
 describe('Einstellungen', () => {
   test('Kalender verbinden: nur mit PIN, Demo zeigt Beispieltermine', async () => {
     const h = await open({ layout: 'wide', cfg: null });
@@ -551,7 +585,7 @@ describe('Einstellungen', () => {
     await h.page.getByRole('button', { name: 'Fertig' }).click();
     assert.equal(await h.page.locator('#calpanel .cev').count(), 4);
     const saved = await h.page.evaluate((k) => JSON.parse(localStorage.getItem(k)), CAL_KEY);
-    assert.deepEqual([saved.mode, saved.url, saved.token], ['worker', 'https://cal.test/', 'geheim']);
+    assert.deepEqual([saved.mode, saved.url, saved.token], ['worker', 'https://cal.test', 'geheim'], 'Adresse wird bereinigt gespeichert');
   });
   test('Fehler beim Verbinden wird verständlich angezeigt', async () => {
     const h = await open({ layout: 'wide', cfg: null });

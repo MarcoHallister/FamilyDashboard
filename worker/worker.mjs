@@ -84,14 +84,15 @@ function parseCalendars(xml, baseUrl) {
     const isCal = !!rt && new RegExp('<' + NS + 'calendar(?=[\\s/>])', 'i').test(rt[1]);
     const sc = new RegExp('<' + NS + 'supported-calendar-component-set[^>]*>([\\s\\S]*?)</' + NS + 'supported-calendar-component-set>', 'i').exec(block);
     const hasEvents = !sc || /name="VEVENT"/i.test(sc[1]);
-    const name = textOf(block, 'displayname');
+    const name = textOf(block, 'displayname') || decodeURIComponent((href || '').replace(/\/+$/, '').split('/').pop() || '');
     if (href && isCal && hasEvents && name) out.push({ name, url: new URL(href, baseUrl).href });
   });
   return out;
 }
 
 /* ---------- CalDAV ---------- */
-async function dav(method, url, env, body, depth) {
+function mask(t) { return String(t).replace(/\d{6,}/g, '#').replace(/[\w.+-]+@[\w.-]+/g, '<mail>'); }
+async function dav(method, url, env, body, depth, ctx) {
   let res;
   try {
     res = await fetch(url, {
@@ -109,27 +110,33 @@ async function dav(method, url, env, body, depth) {
   if (res.status === 401 || res.status === 403) {
     throw new HttpError(502, 'iCloud hat die Zugangsdaten abgelehnt (Apple-ID und App-spezifisches Passwort prüfen)');
   }
+  const text = res.status >= 400 ? '' : await res.text();
+  if (ctx) ctx.trace.push({ step: method + ' ' + mask(new URL(url).pathname) + ' (Depth ' + depth + ')', status: res.status, length: text.length, excerpt: mask(text.replace(/\s+/g, ' ').slice(0, 700)) });
   if (res.status >= 400) throw new HttpError(502, 'iCloud antwortet mit Status ' + res.status);
-  return res.text();
+  return text;
 }
 const PROP = (inner) => '<?xml version="1.0" encoding="utf-8"?><d:propfind xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop>' + inner + '</d:prop></d:propfind>';
 
-async function discover(env) {
+async function discover(env, ctx) {
   const base = (env.CALDAV_BASE || DEFAULT_BASE).replace(/\/+$/, '') + '/';
   const key = base + '|' + env.APPLE_ID;
   const hit = discoveryCache.get(key);
   if (hit && Date.now() - hit.at < DISCOVERY_TTL_MS) return hit.calendars;
-  let xml = await dav('PROPFIND', base, env, PROP('<d:current-user-principal/>'), 0);
+  let xml = await dav('PROPFIND', base, env, PROP('<d:current-user-principal/>'), 0, ctx);
   const principal = firstHrefInside(xml, 'current-user-principal');
   if (!principal) throw new HttpError(502, 'iCloud: Benutzerkonto nicht gefunden');
   const principalUrl = new URL(principal, base).href;
-  xml = await dav('PROPFIND', principalUrl, env, PROP('<c:calendar-home-set/>'), 0);
+  xml = await dav('PROPFIND', principalUrl, env, PROP('<c:calendar-home-set/>'), 0, ctx);
   const home = firstHrefInside(xml, 'calendar-home-set');
   if (!home) throw new HttpError(502, 'iCloud: Kalenderbereich nicht gefunden');
   const homeUrl = new URL(home, principalUrl).href;
-  xml = await dav('PROPFIND', homeUrl, env, PROP('<d:displayname/><d:resourcetype/><c:supported-calendar-component-set/>'), 1);
-  const calendars = parseCalendars(xml, homeUrl);
-  discoveryCache.set(key, { at: Date.now(), calendars });
+  xml = await dav('PROPFIND', homeUrl, env, PROP('<d:displayname/><d:resourcetype/><c:supported-calendar-component-set/>'), 1, ctx);
+  let calendars = parseCalendars(xml, homeUrl);
+  if (!calendars.length) {   /* zweiter Versuch mit weniger Eigenschaften */
+    xml = await dav('PROPFIND', homeUrl, env, PROP('<d:displayname/><d:resourcetype/>'), 1, ctx);
+    calendars = parseCalendars(xml, homeUrl);
+  }
+  if (calendars.length) discoveryCache.set(key, { at: Date.now(), calendars });
   return calendars;
 }
 function pickCalendar(calendars, wanted) {
@@ -140,15 +147,18 @@ function pickCalendar(calendars, wanted) {
   return calendars.find((c) => DEFAULT_NAMES.includes(norm(c.name)));
 }
 async function fromCalDav(env, fromMs, toMs) {
-  const calendars = await discover(env);
+  const ctx = { trace: [] };
+  const calendars = await discover(env, ctx);
   const cal = pickCalendar(calendars, env.CALENDAR_NAME);
   if (!cal) {
     discoveryCache.clear();
-    throw new HttpError(404, 'Kalender "' + (env.CALENDAR_NAME || 'Familie') + '" nicht gefunden. Vorhanden: ' + (calendars.map((c) => c.name).join(', ') || 'keine'), { available: calendars.map((c) => c.name) });
+    const names = calendars.map((c) => c.name);
+    const diag = names.length ? '' : ' Diagnose: ' + ctx.trace.map((t) => t.step + ' → ' + t.status + ', ' + t.length + ' Zeichen: ' + t.excerpt).join(' | ');
+    throw new HttpError(404, 'Kalender "' + (env.CALENDAR_NAME || 'Familie') + '" nicht gefunden. Vorhanden: ' + (names.join(', ') || 'keine') + '.' + diag, { available: names, debug: ctx.trace });
   }
   const body = '<?xml version="1.0" encoding="utf-8"?><c:calendar-query xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop><d:getetag/><c:calendar-data/></d:prop>' +
     '<c:filter><c:comp-filter name="VCALENDAR"><c:comp-filter name="VEVENT"><c:time-range start="' + davTime(addDaysMs(fromMs, -1)) + '" end="' + davTime(addDaysMs(toMs, 2)) + '"/></c:comp-filter></c:comp-filter></c:filter></c:calendar-query>';
-  const xml = await dav('REPORT', cal.url, env, body, 1);
+  const xml = await dav('REPORT', cal.url, env, body, 1, ctx);
   const ics = [];
   const re = new RegExp('<' + NS + 'calendar-data[^>]*>([\\s\\S]*?)</' + NS + 'calendar-data>', 'gi');
   let m;
@@ -196,4 +206,4 @@ export async function handle(request, env) {
 }
 
 export default { fetch: handle };
-export const _test = { decodeXml, parseCalendars, davTime, discoveryCache };
+export const _test = { decodeXml, parseCalendars, davTime, discoveryCache, mask };

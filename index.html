@@ -413,7 +413,7 @@ textarea.inp{font-size:16px}
    Konstanten
    ===================================================================== */
 var STORE_KEY = 'haushaltsplaner.v2';
-var APP_VERSION = '1.7 (15.11.2026)';
+var APP_VERSION = '1.8 (16.11.2026)';
 var UNLOCK_MS = 120000;           /* PIN-Entsperrung: 2 Minuten */
 var PIN_MAX_FAILS = 5;
 var PIN_BLOCK_MS = 30000;
@@ -2252,6 +2252,15 @@ function calDemoIcs() {
     'END:VCALENDAR'].join('\r\n');
 }
 
+/* Adresse tolerant behandeln: https:// ergänzen, Leerzeichen, Abfrage und angehängte Pfade (/health, /events) entfernen. */
+function calNormUrl(u, worker) {
+  u = String(u || '').trim();
+  if (!u) return '';
+  u = u.replace(/^webcal:\/\//i, 'https://');
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(u)) u = 'https://' + u;
+  if (worker) u = u.replace(/[?#].*$/, '').replace(/\/(health|events)\/*$/i, '');
+  return u.replace(/\/+$/, '');
+}
 function calErrText(e, mode) {
   if (e && e.name === 'TypeError') return mode === 'worker' ? 'Keine Verbindung zum Worker (Adresse prüfen)' : 'Keine Verbindung oder vom Browser blockiert (CORS). Besser den Worker nutzen.';
   return (e && e.message) || 'Unbekannter Fehler';
@@ -2271,9 +2280,9 @@ function calFetch(wantFrom, wantTo, done) {
   var to = [wantTo ? addDays(wantTo, 31) : '0000', addDays(ui.today, 93), cal.cover ? cal.cover.to : '0000'].sort().reverse()[0];
   var url, init = { method: 'GET', cache: 'no-store' };
   if (cfg.mode === 'worker') {
-    url = cfg.url.replace(/\/+$/, '') + '/events?from=' + from + '&to=' + to;
+    url = calNormUrl(cfg.url, true) + '/events?from=' + from + '&to=' + to;
     init.headers = { Authorization: 'Bearer ' + cfg.token };
-  } else url = cfg.url.trim().replace(/^webcal:/i, 'https:');
+  } else url = calNormUrl(cfg.url, false);
   cal.busy = true;
   var settled = false;
   var timer = setTimeout(function () { if (!settled) { settled = true; cal.error = 'Zeitüberschreitung'; finish(new Error(cal.error)); } }, 20000);
@@ -2282,7 +2291,7 @@ function calFetch(wantFrom, wantTo, done) {
       return r.text().then(function (t) {
         var msg = '';
         try { msg = JSON.parse(t).error; } catch (e) { /* kein JSON */ }
-        throw new Error(msg || ('HTTP ' + r.status));
+        throw new Error(msg || (r.status === 404 ? 'Adresse nicht gefunden (HTTP 404). Sie muss mit https:// beginnen und darf keinen Pfad enthalten.' : 'HTTP ' + r.status));
       });
     }
     return cfg.mode === 'worker' ? r.json() : r.text();
@@ -2578,7 +2587,7 @@ function openCalendar() {
 /* --- Einstellungen: Kalender verbinden --- */
 function calSettingsSection(rebuild) {
   if (!calDraft) calDraft = { mode: cal.cfg.mode, url: cal.cfg.url, token: cal.cfg.token };
-  var d = calDraft;
+  var d = calDraft, urlInp = null;
   var msg = h('div', { class: 'calmsg' }, cal.cfg.mode === 'off' ? 'Kalender ist ausgeschaltet.' : calStatusText());
   var modes = [['off', 'Aus'], ['demo', 'Demo'], ['ics', 'ICS-Adresse'], ['worker', 'iCloud (Worker)']];
   var sec = h('div', { class: 'sec' }, [h('h3', null, 'Kalender (nur Anzeige)'),
@@ -2586,7 +2595,7 @@ function calSettingsSection(rebuild) {
       return h('button', { class: 'chip calmode' + (d.mode === mm[0] ? ' on' : ''), onclick: function () { d.mode = mm[0]; rebuild(); } }, mm[1]);
     }))]);
   if (d.mode === 'ics' || d.mode === 'worker') {
-    var urlInp = h('input', { class: 'inp calurl', type: 'url', value: d.url, placeholder: d.mode === 'worker' ? 'https://familienkalender.xxx.workers.dev' : 'https://…/kalender.ics', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
+    urlInp = h('input', { class: 'inp calurl', type: 'url', value: d.url, placeholder: d.mode === 'worker' ? 'https://familienkalender.xxx.workers.dev' : 'https://…/kalender.ics', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
       oninput: function () { d.url = urlInp.value; } });
     sec.appendChild(h('label', { class: 'lbl' }, d.mode === 'worker' ? 'Adresse des Workers' : 'Adresse des Kalenders (https:// oder webcal://)'));
     sec.appendChild(urlInp);
@@ -2602,7 +2611,8 @@ function calSettingsSection(rebuild) {
     d.mode === 'ics' ? 'Direkter Abruf. Funktioniert nur, wenn der Anbieter das Laden von anderen Seiten erlaubt (CORS).' :
     d.mode === 'worker' ? 'Der Worker liest den iCloud-Familienkalender und stellt ihn der App bereit. Einrichtung: docs/KALENDER.md' : ''));
   sec.appendChild(h('button', { class: 'btn primary calsave', onclick: function () {
-    cal.cfg.mode = d.mode; cal.cfg.url = (d.url || '').trim(); cal.cfg.token = (d.token || '').trim();
+    cal.cfg.mode = d.mode; cal.cfg.url = (d.mode === 'worker' || d.mode === 'ics') ? calNormUrl(d.url, d.mode === 'worker') : ''; cal.cfg.token = (d.token || '').trim();
+    d.url = cal.cfg.url; if (typeof urlInp !== 'undefined' && urlInp) urlInp.value = cal.cfg.url;
     calSaveCfg(); calClearCache();
     cal.ics = []; cal.raws = []; cal.cover = null; cal.fetchedAt = 0; cal.error = '';
     renderAll();
@@ -2677,7 +2687,7 @@ function start(loaded) {
 /* Für automatisierte Tests */
 window.__hp = { sha256: sha256, isDue: isDue, isoDay: isoDay, isoWeek: isoWeek, diffDays: diffDays, parseMoney: parseMoney,
   schedText: schedText, normalize: normalize, getData: function () { return data; }, balance: balance,
-  cal: { parse: icsParseEvents, expand: calExpand, rrule: rruleDates, rruleParse: rruleParse, zonedToUtc: zonedToUtc, state: cal, refresh: function (cb) { calFetch(null, null, cb); } } };
+  cal: { normUrl: calNormUrl, parse: icsParseEvents, expand: calExpand, rrule: rruleDates, rruleParse: rruleParse, zonedToUtc: zonedToUtc, state: cal, refresh: function (cb) { calFetch(null, null, cb); } } };
 })();
 </script>
 </body>
